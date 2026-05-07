@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midseason Sale V26 HOMBRE - Koroshi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f0f0f;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .header {
+            max-width: 1600px;
+            margin: 0 auto 30px;
+            border-left: 5px solid #e74c3c;
+            padding-left: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #222;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .header > div:first-child {
+            flex: 1;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        #download-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        #download-csv-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .grid {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: #1a1a1a;
+            border: 1px solid #222;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .card:hover {
+            border-color: #e74c3c;
+            background: #222;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.15);
+        }
+
+        .image-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 120%;
+            background: #111;
+            overflow: hidden;
+        }
+
+        .image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .info {
+            padding: 12px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .familia {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #f39c12;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .article {
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .color {
+            font-size: 10px;
+            color: #999;
+        }
+
+        .sexo {
+            font-size: 9px;
+            display: inline-block;
+            background: rgba(255,255,255,0.08);
+            padding: 2px 6px;
+            border-radius: 3px;
+            width: fit-content;
+        }
+
+        .prices {
+            border-top: 1px solid #222;
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 3px;
+        }
+
+        .price-label {
+            color: #999;
+        }
+
+        .precio-actual {
+            font-weight: 600;
+        }
+
+        .precio-rebaja {
+            color: #27ae60;
+            font-weight: 700;
+        }
+
+        .descuento {
+            background: #e74c3c;
+            color: white;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 10px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 80px 20px;
+            color: #999;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #333;
+            border-top: 2px solid #e74c3c;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>🏷️ Midseason Sale V26 — HOMBRE</h1>
+            <p>Koroshi - Rebajas Spring/Summer 2026 (Updated: 06/05/2026)</p>
+        </div>
+        <div class="header-buttons">
+            <button id="download-btn">📥 Excel</button>
+            <button id="download-csv-btn">📄 CSV</button>
+        </div>
+    </div>
+
+    <div id="container">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Cargando catálogo...</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        let items = [];
+
+        // Real data from REBAJAS_V26_06_05_2026_HOMBRE.xls
+        const saleData = [
+            {"article": "2611XC00", "color": "000039", "referencia": "2611XC00_000039", "familia": "CALZADO HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
+            {"article": "2611XC04", "color": "000039", "referencia": "2611XC04_000039", "familia": "CALZADO HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 49.99, "descuento": -0.1666944490748458},
+            {"article": "2611XC04", "color": "000128", "referencia": "2611XC04_000128", "familia": "CALZADO HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 49.99, "descuento": -0.1666944490748458},
+            {"article": "2611MC31", "color": "000039", "referencia": "2611MC31_000039", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
+            {"article": "2611MC63", "color": "000001", "referencia": "2611MC63_000001", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 22.99, "precio_rebaja": 19.99, "descuento": -0.13049151805132667},
+            {"article": "2611MC81", "color": "000019", "referencia": "2611MC81_000019", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
+            {"article": "2611JA02", "color": "000062", "referencia": "2611JA02_000062", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
+            {"article": "2611JA07", "color": "000030", "referencia": "2611JA07_000030", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
+            {"article": "2611JA09", "color": "000062", "referencia": "2611JA09_000062", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
+            {"article": "2611JA09", "color": "000181", "referencia": "2611JA09_000181", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
+            {"article": "2611JA10", "color": "000003", "referencia": "2611JA10_000003", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
+            {"article": "2611JA11", "color": "000184", "referencia": "2611JA11_000184", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 59.99, "descuento": -0.14287755393627652},
+            {"article": "2611JA18", "color": "000003", "referencia": "2611JA18_000003", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 39.99, "descuento": -0.3333888981496916},
+            {"article": "2611JA18", "color": "000062", "referencia": "2611JA18_000062", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 39.99, "descuento": -0.3333888981496916},
+            {"article": "2611JA19", "color": "000039", "referencia": "2611JA19_000039", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
+            {"article": "2611JA41", "color": "000012", "referencia": "2611JA41_000012", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
+            {"article": "2611JA41", "color": "000021", "referencia": "2611JA41_000021", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
+            {"article": "2611JA41", "color": "000103", "referencia": "2611JA41_000103", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
+            {"article": "2611JA42", "color": "000003", "referencia": "2611JA42_000003", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
+            {"article": "2611JA49", "color": "000003", "referencia": "2611JA49_000003", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 49.99, "descuento": -0.1666944490748458},
+            {"article": "2611JA49", "color": "000130", "referencia": "2611JA49_000130", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 39.99, "descuento": -0.3333888981496916},
+            {"article": "2611JA99", "color": "000003", "referencia": "2611JA99_000003", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
+            {"article": "2611PC24", "color": "000030", "referencia": "2611PC24_000030", "familia": "POLO MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
+            {"article": "2611PC24", "color": "000039", "referencia": "2611PC24_000039", "familia": "POLO MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
+            {"article": "2611PC66", "color": "000030", "referencia": "2611PC66_000030", "familia": "POLO MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 35.99, "precio_rebaja": 29.99, "descuento": -0.1667129758266186},
+            {"article": "2611SU07", "color": "000027", "referencia": "2611SU07_000027", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 29.99, "descuento": -0.2500625156289073},
+            {"article": "2611SU09", "color": "000030", "referencia": "2611SU09_000030", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
+            {"article": "2611SU09", "color": "000039", "referencia": "2611SU09_000039", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
+            {"article": "2611SU20", "color": "000014", "referencia": "2611SU20_000014", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
+            {"article": "2611SU26", "color": "000039", "referencia": "2611SU26_000039", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
+            {"article": "2611SU30", "color": "000039", "referencia": "2611SU30_000039", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 45.99, "precio_rebaja": 19.99, "descuento": -0.5653402913676887},
+            {"article": "2611TR08", "color": "000039", "referencia": "2611TR08_000039", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 36.99, "precio_rebaja": 25.99, "descuento": -0.29737766964044343},
+            {"article": "2611TR13", "color": "000003", "referencia": "2611TR13_000003", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
+            {"article": "2611TR13", "color": "000019", "referencia": "2611TR13_000019", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
+            {"article": "2611TR24", "color": "000039", "referencia": "2611TR24_000039", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 36.99, "precio_rebaja": 25.99, "descuento": -0.29737766964044343},
+            {"article": "2611TR25", "color": "000039", "referencia": "2611TR25_000039", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 36.99, "precio_rebaja": 25.99, "descuento": -0.29737766964044343},
+            {"article": "2611TR26", "color": "000014", "referencia": "2611TR26_000014", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 19.99, "descuento": -0.5001250312578145}
+        ];
+
+        function render() {
+            items = saleData;
+            const container = document.getElementById('container');
+            
+            container.innerHTML = `
+                <div class="grid">
+                    ${items.map(item => `
+                        <div class="card">
+                            <div class="image-wrapper">
+                                <img src="https://koroshishop.com/cdn/shop/files/${item.referencia}_1.jpg" alt="${item.referencia}" class="image" onerror="this.style.display='none'">
+                                <div class="placeholder">No imagen</div>
+                            </div>
+                            <div class="info">
+                                <div class="familia">${item.familia}</div>
+                                <div class="article">${item.article}</div>
+                                <div class="color">${item.referencia}</div>
+                                <div class="sexo">${item.sexo}</div>
+                                <div class="prices">
+                                    <div class="price-row">
+                                        <span class="price-label">PVP:</span>
+                                        <span class="precio-actual">€${item.precio_actual.toFixed(2)}</span>
+                                    </div>
+                                    <div class="price-row">
+                                        <span class="price-label">Rebaja:</span>
+                                        <span class="precio-rebaja">€${item.precio_rebaja.toFixed(2)}</span>
+                                        <span class="descuento">${(Math.abs(item.descuento) * 100).toFixed(0)}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Load on page ready
+        document.addEventListener('DOMContentLoaded', render);
+
+        // Download Excel function
+        document.getElementById('download-btn').addEventListener('click', function() {
+            try {
+                // Prepare data for Excel
+                const excelData = items.map(item => ({
+                    'Artículo': item.article,
+                    'Familia': item.familia,
+                    'Sexo': item.sexo,
+                    'Referencia': item.referencia,
+                    'Color': item.color,
+                    'Precio Actual': item.precio_actual,
+                    'Precio Rebaja': item.precio_rebaja,
+                    'Descuento %': (Math.abs(item.descuento) * 100).toFixed(2)
+                }));
+
+                // Create workbook
+                const ws = XLSX.utils.json_to_sheet(excelData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Midseason Sale");
+
+                // Set column widths
+                ws['!cols'] = [
+                    { wch: 15 },
+                    { wch: 25 },
+                    { wch: 12 },
+                    { wch: 20 },
+                    { wch: 10 },
+                    { wch: 15 },
+                    { wch: 15 },
+                    { wch: 12 }
+                ];
+
+                // Write file
+                XLSX.writeFile(wb, "Midseason_Sale_V26.xlsx");
+                console.log('Excel file downloaded successfully');
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Error downloading file. Please try again.');
+            }
+        });
+
+        // Download CSV function
+        document.getElementById('download-csv-btn').addEventListener('click', function() {
+            try {
+                const headers = ['Artículo', 'Familia', 'Sexo', 'Referencia', 'Color', 'Precio Actual', 'Precio Rebaja', 'Descuento %'];
+                
+                let csv = headers.join(';') + '\n';
+                
+                items.forEach(item => {
+                    csv += [
+                        item.article,
+                        item.familia,
+                        item.sexo,
+                        item.referencia,
+                        item.color,
+                        item.precio_actual,
+                        item.precio_rebaja,
+                        (Math.abs(item.descuento) * 100).toFixed(2)
+                    ].join(';') + '\n';
+                });
+
+                // Create blob and download
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'Midseason_Sale_V26.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                console.log('CSV file downloaded successfully');
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Error downloading file. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
