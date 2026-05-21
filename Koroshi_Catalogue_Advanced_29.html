@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOROSHI — Order Form</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#010001;--white:#fff;--light:#f8f8f8;--mid:#e8e8e8;--dark:#3a3a3a;
+      --gold:#c9a961;--muted:#6a6a6a;--k08:#E8A945;--wh:#4FA3D1;--extra:#e74c3c;--danger:#c0392b}
+body{font-family:'Montserrat',sans-serif;background:#f0f0f0;color:var(--black);padding-bottom:80px}
+header{background:var(--white);border-bottom:1px solid var(--mid);padding:.7rem 2rem;
+       position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:2rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.logo-wrap svg{height:30px;width:auto}
+.header-tag{font-size:.6rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-left:auto}
+.nav{background:var(--white);border-bottom:1px solid var(--mid);padding:.5rem 2rem;
+     position:sticky;top:50px;z-index:99;display:flex;gap:.3rem;align-items:center;flex-wrap:wrap}
+.gbtn{padding:.38rem .85rem;border:none;background:transparent;color:var(--muted);cursor:pointer;
+      font-weight:600;font-size:.73rem;text-transform:uppercase;letter-spacing:1px;
+      border-bottom:2px solid transparent;font-family:inherit}
+.gbtn.active{color:var(--black);border-bottom-color:var(--gold)}
+.fam-wrap{margin-left:auto;position:relative}
+.fbtn{padding:.38rem .85rem;border:1px solid var(--mid);background:var(--light);cursor:pointer;
+      font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;border-radius:2px;font-family:inherit}
+.fbtn:hover{border-color:var(--gold)}
+.fmenu{position:absolute;top:calc(100% + 3px);right:0;background:var(--white);border:1px solid var(--mid);
+       border-radius:2px;max-height:340px;overflow-y:auto;z-index:200;display:none;min-width:220px;
+       box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.fmenu.open{display:block}
+.fopt{padding:.55rem 1rem;border-bottom:1px solid var(--mid);cursor:pointer;font-size:.76rem;
+      display:flex;justify-content:space-between;align-items:center}
+.fopt:hover{background:var(--light)}
+.fopt.active{color:var(--gold);font-weight:700}
+.toolbar{background:var(--white);border-bottom:1px solid var(--mid);padding:.6rem 2rem;
+         display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;position:sticky;top:90px;z-index:98}
+.sinput{flex:1;min-width:160px;padding:.55rem .85rem;border:1px solid var(--mid);
+        background:var(--light);font-size:.83rem;font-family:inherit;border-radius:2px}
+.sinput:focus{outline:none;border-color:var(--gold);background:var(--white)}
+.tbtn{padding:.55rem .9rem;border:none;cursor:pointer;font-weight:700;font-size:.67rem;
+      text-transform:uppercase;letter-spacing:.5px;font-family:inherit;border-radius:2px;white-space:nowrap}
+.btn-reset{background:var(--light);color:var(--dark);border:1px solid var(--mid)}
+.btn-restore{background:#666;color:#fff}
+.btn-delete{background:var(--danger);color:#fff}
+.btn-export{background:var(--gold);color:var(--black);font-weight:800;margin-left:auto}
+.sel-info{font-size:.73rem;color:var(--muted);white-space:nowrap}
+.sel-info b{color:var(--gold);font-family:'Poppins',sans-serif;font-size:.9rem}
+.stats{display:flex;gap:2rem;padding:1rem 2rem;background:var(--white);border-bottom:1px solid var(--mid)}
+.stat .n{font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:700;color:var(--gold)}
+.stat .l{font-size:.56rem;text-transform:uppercase;color:var(--muted);letter-spacing:1px}
+.sec-hdr{display:flex;align-items:center;gap:.6rem;margin:1.3rem 1.5rem .65rem;
+         padding:.55rem .85rem;background:var(--white);border:1px solid var(--mid);border-radius:3px}
+.sec-name{font-family:'Poppins',sans-serif;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex:1}
+.sec-cnt{font-size:.63rem;color:var(--muted)}
+.sbtn{padding:.26rem .6rem;border:none;cursor:pointer;font-size:.6rem;font-weight:700;
+      text-transform:uppercase;letter-spacing:.5px;border-radius:2px;font-family:inherit}
+.sbtn-sel{background:var(--light);color:var(--dark);border:1px solid var(--mid)}
+.sbtn-sel.all{background:rgba(201,169,97,.18);border-color:var(--gold);color:#8a6d1a}
+.sbtn-del{background:var(--danger);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;padding:0 1.5rem 1rem}
+.card{background:var(--white);border:2px solid var(--mid);display:flex;flex-direction:column;
+      border-radius:3px;cursor:pointer;position:relative;transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:#bbb;box-shadow:0 3px 12px rgba(0,0,0,.07)}
+.card.sel{border-color:var(--gold);background:rgba(201,169,97,.04)}
+.chk{position:absolute;top:7px;left:7px;width:22px;height:22px;border-radius:50%;
+     background:rgba(255,255,255,.92);border:2px solid rgba(0,0,0,.18);
+     display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;
+     z-index:20;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:all .15s}
+.card.sel .chk{background:var(--gold);border-color:var(--gold);color:#fff}
+.img-wrap{position:relative;aspect-ratio:3/4;background:var(--light);overflow:hidden;border-radius:2px 2px 0 0}
+.img-wrap img{width:100%;height:100%;object-fit:cover;display:none;position:absolute;top:0;left:0;pointer-events:none}
+.img-wrap img.on{display:block}
+.no-img{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;color:var(--muted)}
+.img-link{position:absolute;bottom:7px;right:7px;background:rgba(0,0,0,.6);color:#fff;
+          width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+          font-size:11px;z-index:15;text-decoration:none;opacity:0;transition:opacity .2s}
+.card:hover .img-link{opacity:1}
+.img-link:hover{background:var(--gold);color:var(--black)}
+.c-arrows{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;
+          padding:0 6px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:10}
+.card:hover .c-arrows{opacity:1;pointer-events:all}
+.arr{background:rgba(0,0,0,.4);color:#fff;border:none;width:26px;height:26px;border-radius:50%;
+     cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.c-dots{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);display:flex;gap:3px;z-index:10;pointer-events:all}
+.dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;border:1px solid rgba(255,255,255,.6)}
+.dot.on{background:#fff;width:8px}
+.info{padding:.85rem;display:flex;flex-direction:column;gap:.55rem}
+.art-row{display:flex;justify-content:space-between;align-items:flex-start;gap:.3rem}
+.art-id{font-family:'Poppins',sans-serif;font-size:.85rem;font-weight:700}
+.col-badge{padding:.15rem .45rem;background:var(--mid);border-radius:2px;font-size:.58rem;font-weight:700}
+.descri{font-size:.62rem;color:var(--muted);line-height:1.35}
+.stk-summary{display:flex;gap:.4rem}
+.stk-pill{flex:1;padding:.35rem .5rem;border-radius:3px;text-align:center}
+.stk-pill.k{background:rgba(232,169,69,.12);border:1px solid rgba(232,169,69,.3)}
+.stk-pill.w{background:rgba(79,163,209,.12);border:1px solid rgba(79,163,209,.3)}
+.stk-pill.e{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3)}
+.stk-pill .pn{font-family:'Poppins',sans-serif;font-size:.9rem;font-weight:700}
+.stk-pill.k .pn{color:var(--k08)}
+.stk-pill.w .pn{color:var(--wh)}
+.stk-pill.e .pn{color:var(--extra)}
+.stk-pill .pl{font-size:.52rem;text-transform:uppercase;color:var(--muted);letter-spacing:.5px}
+.size-tbl{width:100%;border-collapse:collapse;font-size:.62rem;border:1px solid var(--mid);border-radius:3px;overflow:hidden}
+.size-tbl thead th{background:var(--black);color:rgba(255,255,255,.7);padding:.28rem .3rem;text-align:center;font-size:.55rem;text-transform:uppercase;font-weight:700}
+.size-tbl thead th.k-col{color:var(--k08)}
+.size-tbl thead th.w-col{color:var(--wh)}
+.size-tbl thead th.e-col{color:#ff8a80}
+.size-tbl thead th.q-col{color:#fff}
+.size-tbl tbody tr:nth-child(even){background:var(--light)}
+.size-tbl td{padding:.26rem .3rem;text-align:center;border-bottom:1px solid var(--mid)}
+.td-sz{font-weight:700;color:var(--dark)}
+.td-k{color:var(--k08);font-weight:600}
+.td-w{color:var(--wh);font-weight:600}
+.td-e{color:var(--extra);font-weight:700}
+.qty-cell input{width:38px;height:22px;border:1px solid var(--mid);text-align:center;
+                font-family:'Poppins',sans-serif;font-size:.75rem;font-weight:700;
+                border-radius:2px;color:var(--muted);background:var(--white);display:none}
+.card.sel .qty-cell input{display:block;border-color:var(--gold);color:var(--gold)}
+.card.sel .qty-cell input:focus{outline:none;background:rgba(201,169,97,.08)}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:2px solid var(--gold);
+        padding:.65rem 2rem;display:flex;gap:1.5rem;align-items:center;z-index:300;flex-wrap:wrap;
+        box-shadow:0 -2px 10px rgba(0,0,0,.07)}
+.tot .n{font-family:'Poppins',sans-serif;font-size:1rem;font-weight:700;color:var(--gold)}
+.tot .l{font-size:.54rem;text-transform:uppercase;color:var(--muted);letter-spacing:1px}
+.no-results{text-align:center;padding:3rem;color:var(--muted)}
+footer{background:var(--black);color:rgba(255,255,255,.3);text-align:center;padding:1rem;
+       font-size:.65rem;letter-spacing:1px;text-transform:uppercase;margin-top:2rem}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap"><?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1016.05 174.82">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #010001;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M93.31,40.61h40.65l-67.11,67.11,67.11,67.11h-40.65l-52.72-52.72h-11.83v52.72H0V40.61h28.76v52.72h11.83l52.72-52.72Z"/>
+  <path class="cls-1" d="M148.55,126.89v-38.35c0-31.95,15.98-47.93,47.93-47.93h38.34c31.96,0,47.93,15.98,47.93,47.93v38.35c0,31.96-15.98,47.93-47.93,47.93h-38.34c-31.96,0-47.93-15.98-47.93-47.93ZM177.31,88.54v38.35c0,12.78,6.39,19.17,19.17,19.17h38.34c12.78,0,19.17-6.39,19.17-19.17v-38.35c0-12.78-6.39-19.17-19.17-19.17h-38.34c-12.78,0-19.17,6.39-19.17,19.17Z"/>
+  <path class="cls-1" d="M406.67,40.61c25.56,0,38.34,12.78,38.34,38.34v4.79c0,25.56-12.78,38.35-38.34,38.35l7.43-.52,36.02,53.02-33.93-.35-35.27-52.73-27.64.58v52.72h-28.76V40.61h82.15ZM416.25,78.95c0-6.39-3.19-9.59-9.58-9.59h-53.39v23.97h53.39c6.39,0,9.58-3.19,9.58-9.59v-4.79Z"/>
+  <path class="cls-1" d="M479.93,126.89v-38.35c0-31.95,15.98-47.93,47.93-47.93h38.34c31.96,0,47.93,15.98,47.93,47.93v38.35c0,31.96-15.98,47.93-47.93,47.93h-38.34c-31.96,0-47.93-15.98-47.93-47.93ZM508.69,88.54v38.35c0,12.78,6.39,19.17,19.17,19.17h38.34c12.78,0,19.17-6.39,19.17-19.17v-38.35c0-12.78-6.39-19.17-19.17-19.17h-38.34c-12.78,0-19.17,6.39-19.17,19.17ZM507.82,6.59v13.17c0,4.39,2.2,6.59,6.59,6.59h13.17c4.39,0,6.59-2.2,6.59-6.59V6.59C534.17,2.2,531.98,0,527.59,0h-13.17c-4.39,0-6.59,2.2-6.59,6.59ZM560.46,6.59v13.17c0,4.39,2.2,6.59,6.59,6.59h13.17c4.39,0,6.59-2.2,6.59-6.59V6.59C586.81,2.2,584.61,0,580.22,0h-13.17c-4.39,0-6.59,2.2-6.59,6.59Z"/>
+  <path class="cls-1" d="M744.92,40.61c25.56,0,38.34,12.78,38.34,38.34h-28.76c0-6.39-3.19-9.59-9.58-9.59h-57.52c-6.39,0-9.58,3.2-9.58,9.59v4.79c0,6.39,3.19,9.59,9.58,9.59h57.52c25.56,0,38.34,12.78,38.34,38.35v4.79c0,25.57-12.78,38.35-38.34,38.35h-57.52c-25.56,0-38.34-12.78-38.34-38.35h28.76c0,6.39,3.19,9.59,9.58,9.59h57.52c6.39,0,9.58-3.19,9.58-9.59v-4.79c0-6.39-3.19-9.59-9.58-9.59h-57.52c-25.56,0-38.34-12.78-38.34-38.35v-4.79c0-25.56,12.78-38.34,38.34-38.34h57.52Z"/>
+  <path class="cls-1" d="M846.93,122.1v52.72h-28.76V40.61h28.76v52.72h76.69v-52.72h28.76v134.21h-28.76v-52.72h-76.69Z"/>
+  <path class="cls-1" d="M1016.05,174.82h-28.76V40.61h28.76v134.21Z"/>
+</svg></div>
+  <div class="header-tag">Order Form · 51 referencias</div>
+</header>
+
+<div class="nav" id="nav">
+  <div class="fam-wrap">
+    <button class="fbtn" id="fbtn">📁 Familia ▾</button>
+    <div class="fmenu" id="fmenu"></div>
+  </div>
+</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="toolbar">
+  <input class="sinput" id="search" placeholder="Buscar artículo, color, descripción...">
+  <span class="sel-info" id="selInfo" style="display:none"><b id="selN">0</b> refs · <b id="selUnits">0</b> uds</span>
+  <button class="tbtn btn-delete"  id="btnDel"     style="display:none" onclick="removeSelected()">🗑 Eliminar seleccionados</button>
+  <button class="tbtn btn-restore" id="btnRestore" style="display:none" onclick="restoreAll()">↺ Restaurar (<span id="removedN">0</span>)</button>
+  <button class="tbtn btn-reset"   onclick="resetFilters()">✕ Reset</button>
+  <button class="tbtn btn-export"  id="btnExport"  style="display:none" onclick="exportCSV()">📥 Descargar CSV</button>
+</div>
+
+<div id="content"></div>
+<footer>KOROSHI — Wholesale Order Form</footer>
+
+<div class="bottom">
+  <div class="tot"><div class="n" id="totR">0</div><div class="l">refs visibles</div></div>
+  <div class="tot"><div class="n" id="totK" style="color:var(--k08)">0</div><div class="l">K08 stock</div></div>
+  <div class="tot"><div class="n" id="totW" style="color:var(--wh)">0</div><div class="l">WH stock</div></div>
+  <div class="tot" id="orderTot" style="display:none;border-left:2px solid var(--gold);padding-left:1.2rem">
+    <div class="n" id="orderN" style="color:var(--black)">0</div><div class="l">unidades pedidas</div>
+  </div>
+</div>
+
+<script>
+const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "TU", "UNI", "00", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "28", "29", "30", "31", "32", "33", "34", "36", "38", "40", "41", "42", "43", "44", "45"];
+const CAT = [{"key": "2611MC61-000030", "articulo": "2611MC61", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "CAMISETA CREW ALGODON BASIC FANCY", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {"S": 1, "M": 3, "L": 2, "XL": 1, "XXL": 1, "3XL": 1}, "stock_warehouse": {"S": 2, "M": 58, "L": 19, "XL": 28, "XXL": 14, "3XL": 21}, "total": 151, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC61_000030_8.jpg?v=1775114409", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC61_000030_1.jpg?v=1775114409", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC61_000030_2.jpg?v=1775114409", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC61_000030_3.jpg?v=1775114409", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC61_000030_4.jpg?v=1775114409", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC61_000030_5.jpg?v=1775114409", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC61_000030_6.jpg?v=1775114409", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC61_000030_7.jpg?v=1775114409"], "extra_k08": {"M": 1, "L": 2, "XL": 2, "XXL": 1, "3XL": 1}}, {"key": "2612PT60-000001", "articulo": "2612PT60", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "JEANS ALGODON CORSET-SLIM PUSHUP", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "stock_k08": {"34": 1, "36": 1, "38": 2, "40": 2, "42": 2, "44": 1}, "stock_warehouse": {"34": 20, "36": 15, "38": 2, "40": 16, "42": 19, "44": 5}, "total": 86, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT60_000001_8.jpg?v=1767793376", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT60_000001_1.jpg?v=1767793376", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT60_000001_2.jpg?v=1767793376", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT60_000001_3.jpg?v=1767793376", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT60_000001_4.jpg?v=1767793376", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT60_000001_5.jpg?v=1767793376", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT60_000001_7.jpg?v=1767793376"], "extra_k08": {"34": 1, "36": 2, "38": 1, "40": 1, "42": 1, "44": 1}}, {"key": "2611MC36-000001", "articulo": "2611MC36", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "CAMISETA HENLEY ALGODON PRINT-EMB FANCY", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {"S": 1, "M": 2, "L": 1, "XL": 2, "XXL": 1, "3XL": 1}, "stock_warehouse": {"L": 1, "3XL": 1}, "total": 10, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC36_000001_8.jpg?v=1769614135", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC36_000001_1.jpg?v=1769614135", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC36_000001_2.jpg?v=1769614135", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC36_000001_3.jpg?v=1769614135", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC36_000001_4.jpg?v=1769614135", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC36_000001_5.jpg?v=1769614135", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC36_000001_6.jpg?v=1769614135", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC36_000001_7.jpg?v=1769614135"], "extra_k08": {"L": 1, "3XL": 1}}, {"key": "2612BL36-000001", "articulo": "2612BL36", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "CAMISA MUJER MANGA CORTA BORDADA", "familia": "BLUSAS", "sexo": "MUJER", "stock_k08": {"XS": 1, "S": 1, "M": 2, "L": 2, "XL": 1, "XXL": 1}, "stock_warehouse": {"XS": 5, "S": 50, "M": 46, "L": 46, "XL": 62, "XXL": 56}, "total": 273, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL36_000001_2.jpg?v=1772703007", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL36_000001_1.jpg?v=1772703007", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL36_000001_3.jpg?v=1772703007", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL36_000001_4.jpg?v=1772703007", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL36_000001_5.jpg?v=1772703007", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL36_000001_6.jpg?v=1772703007", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL36_000001_7.jpg?v=1772703007", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL36_000001_8.jpg?v=1772703007"], "extra_k08": {"XS": 1, "S": 2, "M": 1, "L": 1, "XL": 2, "XXL": 1}}, {"key": "2611PS15-000030", "articulo": "2611PS15", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "PANTALON CORTO HOMBRE JOGGER", "familia": "PANTALON CORTO HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"S": 122, "M": 180, "L": 156, "XL": 111, "XXL": 47}, "total": 616, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS15_000030_8.jpg?v=1769509618", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS15_000030_1.jpg?v=1769509618", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS15_000030_2.jpg?v=1769509618", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS15_000030_3.jpg?v=1769509618", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS15_000030_4.jpg?v=1769509618", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS15_000030_5.jpg?v=1769509618", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS15_000030_6.jpg?v=1769509618", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS15_000030_7.jpg?v=1769509618"], "extra_k08": {"S": 1, "M": 2, "L": 2, "XL": 1, "XXL": 1}}, {"key": "2611PS35-000321", "articulo": "2611PS35", "color": "000321", "descri_col": "DENIM BLANCO / WHITE DENIM", "descri_art": "PANTALON CORTO HOMBRE DENIM NAUTIK", "familia": "PANTALON CORTO HOMBRE", "sexo": "HOMBRE", "stock_k08": {"26": 1, "28": 1, "30": 2, "32": 2, "34": 1, "36": 1}, "stock_warehouse": {"26": 9, "28": 136, "30": 248, "32": 288, "34": 163, "36": 24, "38": 62}, "total": 938, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS35_000321_8.jpg?v=1772723603", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS35_000321_1.jpg?v=1772723603", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS35_000321_3.jpg?v=1772723603", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS35_000321_4.jpg?v=1772723603", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS35_000321_5.jpg?v=1772723603", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS35_000321_6.jpg?v=1772723603", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS35_000321_2.jpg?v=1772723603", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS35_000321_7.jpg?v=1772723603"], "extra_k08": {"26": 1, "28": 1, "30": 1, "32": 1, "34": 1, "36": 1, "38": 1}}, {"key": "2611CC59-000030", "articulo": "2611CC59", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "CAMISA MANGA CORTA HOMBRE FANCY", "familia": "CAMISA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {"S": 1, "M": 2, "L": 2, "XL": 2, "XXL": 1, "3XL": 1}, "stock_warehouse": {"S": 29, "M": 48, "L": 62, "XL": 37, "XXL": 20, "3XL": 10}, "total": 215, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC59_000030_8.jpg?v=1768901783", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC59_000030_1.jpg?v=1768901783", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC59_000030_2.jpg?v=1768901783", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC59_000030_3.jpg?v=1768901783", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC59_000030_4.jpg?v=1768901783", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC59_000030_5.jpg?v=1768901783", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC59_000030_6.jpg?v=1768901783", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC59_000030_7.jpg?v=1768901783"], "extra_k08": {"S": 1, "M": 1, "L": 1, "XL": 1, "XXL": 1}}, {"key": "2612TP02-000001", "articulo": "2612TP02", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "CAMISETA MUJER MANGA CORTA  ARO ESCOTE", "familia": "TOP MUJER", "sexo": "MUJER", "stock_k08": {"S": 1, "M": 2, "L": 2, "XL": 2, "XXL": 1}, "stock_warehouse": {"S": 22, "M": 18, "L": 11, "XL": 2, "XXL": 16}, "total": 77, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP02_000001_8.jpg?v=1769426797", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP02_000001_1.jpg?v=1769426797", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP02_000001_2.jpg?v=1769426797", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP02_000001_3.jpg?v=1769426797", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP02_000001_4.jpg?v=1769426797", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP02_000001_5.jpg?v=1769426797", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP02_000001_6.jpg?v=1769426797", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP02_000001_7.jpg?v=1769426797"], "extra_k08": {"S": 1, "M": 1, "L": 1, "XL": 2, "XXL": 1}}, {"key": "2612BL14-000001", "articulo": "2612BL14", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "CAMISA MUJER MANGA CORTA", "familia": "BLUSAS", "sexo": "MUJER", "stock_k08": {"XS": 1, "M": 1, "L": 2, "XL": 1, "XXL": 1}, "stock_warehouse": {"S": 1, "M": 1, "L": 2, "XL": 7, "XXL": 1}, "total": 18, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL14_000001_8.jpg?v=1769501023", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL14_000001_1.jpg?v=1769501023", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL14_000001_2.jpg?v=1769501023", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL14_000001_3.jpg?v=1769501023", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL14_000001_4.jpg?v=1769501023", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL14_000001_5.jpg?v=1769501023", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL14_000001_6.jpg?v=1769501023", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL14_000001_7.jpg?v=1769501023"], "extra_k08": {"S": 1, "M": 1, "L": 1, "XL": 2, "XXL": 1}}, {"key": "2612PT01-000001", "articulo": "2612PT01", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "JEANS  ALGODON REGULAR EMBROIDERY PUSHUP", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "stock_k08": {"36": 1, "38": 2, "42": 2, "44": 1}, "stock_warehouse": {"34": 44, "36": 1}, "total": 51, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT01_000001_2.jpg?v=1768836444", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT01_000001_1.jpg?v=1768836444", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT01_000001_3.jpg?v=1767186629", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT01_000001_4.jpg?v=1767186629", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT01_000001_5.jpg?v=1767186629", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT01_000001_6.jpg?v=1767186629", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT01_000001_7.jpg?v=1767186629", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT01_000001_8.jpg?v=1767186629"], "extra_k08": {"34": 2, "36": 1}}, {"key": "2611PS24-000321", "articulo": "2611PS24", "color": "000321", "descri_col": "DENIM BLANCO / WHITE DENIM", "descri_art": "PANTALON CORTO HOMBRE JEANS ALGODON", "familia": "PANTALON CORTO HOMBRE", "sexo": "HOMBRE", "stock_k08": {"26": 1, "30": 2, "32": 2, "34": 1, "36": 1}, "stock_warehouse": {"26": 47, "28": 156, "30": 251, "32": 211, "34": 136, "36": 17, "38": 60}, "total": 885, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS24_000321_8.jpg?v=1769508792", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS24_000321_1.jpg?v=1769508792", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS24_000321_2.jpg?v=1769508792", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS24_000321_3.jpg?v=1769508792", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS24_000321_4.jpg?v=1769508792", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS24_000321_5.jpg?v=1769508792", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS24_000321_6.jpg?v=1769508792", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS24_000321_7.jpg?v=1769508792"], "extra_k08": {"26": 1, "28": 2, "30": 1, "32": 1, "34": 2, "36": 2, "38": 1}}, {"key": "2612TP80-000001", "articulo": "2612TP80", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "CAMISETA MUJER TIRANTE BRILLOS", "familia": "TOP MUJER", "sexo": "MUJER", "stock_k08": {"XS": 1, "S": 1, "M": 2, "L": 2, "XL": 1, "XXL": 1}, "stock_warehouse": {"XS": 20, "S": 33, "M": 61, "L": 43, "XL": 37, "XXL": 20}, "total": 222, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP80_000001_7.jpg?v=1767867822", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP80_000001_1.jpg?v=1767867822", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP80_000001_3.jpg?v=1767867822", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP80_000001_4.jpg?v=1767867822", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP80_000001_5.jpg?v=1767867822", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP80_000001_6.jpg?v=1767867822", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612TP80_000001_8.jpg?v=1767867822"], "extra_k08": {"XS": 1, "S": 1, "M": 1, "L": 1, "XL": 1, "XXL": 1}}, {"key": "2611MC62-000030", "articulo": "2611MC62", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "CAMISETA HENLEY ALGODON BASIC", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {"M": 2, "L": 2, "XL": 1, "XXL": 1}, "stock_warehouse": {"S": 66, "M": 65, "L": 55, "XL": 85, "XXL": 1, "3XL": 28}, "total": 306, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC62_000030_1.jpg?v=1767185117", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC62_000030_2.jpg?v=1767185118", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC62_000030_3.jpg?v=1767185118", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC62_000030_4.jpg?v=1767185118", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC62_000030_5.jpg?v=1767185118", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC62_000030_6.jpg?v=1767185118", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC62_000030_7.jpg?v=1767185118", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC62_000030_8.jpg?v=1767185119", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611MC62_000030_9.jpg?v=1767185118"], "extra_k08": {"S": 2, "M": 1, "L": 1, "XL": 2, "XXL": 1, "3XL": 2}}, {"key": "2612PT11-000001", "articulo": "2612PT11", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "JEANS ALGODON WIDE", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "stock_k08": {"34": 1, "36": 1, "38": 2, "40": 1, "42": 1, "44": 1}, "stock_warehouse": {"34": 6, "40": 1, "44": 1}, "total": 15, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT11_000001_8.jpg?v=1767793573", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT11_000001_1.jpg?v=1767793573", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT11_000001_2.jpg?v=1767793573", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT11_000001_3.jpg?v=1767793573", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT11_000001_4.jpg?v=1767793573", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT11_000001_5.jpg?v=1767793573", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT11_000001_6.jpg?v=1767793573", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT11_000001_7.jpg?v=1767793573"], "extra_k08": {"34": 2, "40": 1, "44": 1}}, {"key": "2611CC04-000001", "articulo": "2611CC04", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "MULTIPOCKETS POPELIN PRINT-EMB NAUTIK", "familia": "CAMISA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {"S": 1, "M": 4, "L": 2, "XL": 4, "XXL": 4, "3XL": 1}, "stock_warehouse": {"S": 1, "M": 29, "L": 67, "XL": 95, "XXL": 64, "3XL": 58}, "total": 330, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC04_000001_8.jpg?v=1768911423", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC04_000001_1.jpg?v=1768911423", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC04_000001_2.jpg?v=1768911423", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC04_000001_3.jpg?v=1768911423", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC04_000001_4.jpg?v=1768911423", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC04_000001_5.jpg?v=1768911423", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC04_000001_6.jpg?v=1768911423", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC04_000001_7.jpg?v=1768911423", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611CC04_000001_9.jpg?v=1768911423"], "extra_k08": {"S": 1, "M": 1, "L": 2, "XL": 1, "XXL": 1, "3XL": 2}}, {"key": "2611PT16-000030", "articulo": "2611PT16", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "PANTALON LARGO JOGGER HOMBRE", "familia": "PANTALON LARGO HOMBRE", "sexo": "HOMBRE", "stock_k08": {"S": 1, "M": 2, "L": 2, "XL": 1, "XXL": 1}, "stock_warehouse": {"M": 2, "L": 2, "XL": 23}, "total": 34, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PT16_000030_8.jpg?v=1768833855", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PT16_000030_1.jpg?v=1768833855", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PT16_000030_2.jpg?v=1768833855", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PT16_000030_3.jpg?v=1768833855", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PT16_000030_4.jpg?v=1768833855", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PT16_000030_5.jpg?v=1768833855", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PT16_000030_6.jpg?v=1768833855", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PT16_000030_7.jpg?v=1768833855"], "extra_k08": {"M": 2, "L": 2, "XL": 2}}, {"key": "2611PS11-000001", "articulo": "2611PS11", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "PANTALON CORTO HOMBRE ALGODON CARGO", "familia": "PANTALON CORTO HOMBRE", "sexo": "HOMBRE", "stock_k08": {"28": 1, "30": 1, "32": 2, "34": 2, "36": 1, "38": 1}, "stock_warehouse": {"28": 2, "30": 47, "32": 138, "34": 120, "36": 85, "38": 1, "40": 58}, "total": 459, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS11_000001_8.jpg?v=1772632949", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS11_000001_1.jpg?v=1772632949", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS11_000001_2.jpg?v=1772632949", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS11_000001_3.jpg?v=1772632949", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS11_000001_4.jpg?v=1772632949", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS11_000001_5.jpg?v=1772632949", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS11_000001_6.jpg?v=1772632949", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS11_000001_7.jpg?v=1772632949"], "extra_k08": {"28": 2, "30": 2, "32": 1, "34": 1, "36": 2, "38": 1, "40": 1}}, {"key": "2612PT15-000001", "articulo": "2612PT15", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "JEANS ALGODON CROPPED", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "stock_k08": {"34": 1, "36": 1, "38": 2, "40": 2, "42": 1, "44": 2}, "stock_warehouse": {"34": 1, "36": 8, "38": 1, "42": 18, "44": 15}, "total": 52, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT15_000001_7.jpg?v=1767793246", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT15_000001_1.jpg?v=1767793246", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT15_000001_2.jpg?v=1767793246", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT15_000001_3.jpg?v=1767793246", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT15_000001_4.jpg?v=1767793246", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT15_000001_5.jpg?v=1767793246", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT15_000001_6.jpg?v=1767793246", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT15_000001_8.jpg?v=1767186711"], "extra_k08": {"34": 1, "36": 2, "38": 1, "42": 2, "44": 2}}, {"key": "2612PT95-000001", "articulo": "2612PT95", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "PANTALON JOGGER MUJER LINO", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "stock_k08": {"36": 1, "38": 2, "40": 2, "42": 1}, "stock_warehouse": {"36": 42, "38": 36, "40": 34, "42": 35, "44": 50}, "total": 203, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT95_000001_1.jpg?v=1768996299", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT95_000001_2.jpg?v=1768996300", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT95_000001_3.jpg?v=1768996300", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT95_000001_4.jpg?v=1768996299", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT95_000001_5.jpg?v=1768996300", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT95_000001_6.jpg?v=1768996300", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT95_000001_7.jpg?v=1768996300", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612PT95_000001_8.jpg?v=1768996299"], "extra_k08": {"36": 1, "38": 1, "40": 1, "42": 1, "44": 2}}, {"key": "2612BL23-000001", "articulo": "2612BL23", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "CAMISA MANGA CORTA MUJER BORDADA", "familia": "BLUSAS", "sexo": "MUJER", "stock_k08": {"XS": 1, "S": 1, "M": 2, "L": 2, "XL": 1, "XXL": 1}, "stock_warehouse": {"XS": 14, "S": 67, "M": 68, "L": 56, "XL": 71, "XXL": 34}, "total": 318, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL23_000001_2.jpg?v=1775121460", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL23_000001_1.jpg?v=1775121460", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL23_000001_3.jpg?v=1775121450", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL23_000001_4.jpg?v=1775121449", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL23_000001_5.jpg?v=1775121449", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL23_000001_6.jpg?v=1775121450", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL23_000001_7.jpg?v=1775121450", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2612BL23_000001_8.jpg?v=1775121449"], "extra_k08": {"XS": 1, "S": 1, "M": 1, "L": 1, "XL": 1, "XXL": 1}}, {"key": "2611PS07-000001", "articulo": "2611PS07", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "CHINO ALGODON COLOR NAUTIK REGULAR", "familia": "PANTALON CORTO HOMBRE", "sexo": "HOMBRE", "stock_k08": {"28": 1, "30": 1, "32": 2, "34": 2, "36": 1, "38": 1}, "stock_warehouse": {"28": 26, "30": 135, "32": 229, "34": 217, "36": 131, "38": 102}, "total": 848, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS07_000001_10.jpg?v=1769511765", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS07_000001_1.jpg?v=1769511765", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS07_000001_2.jpg?v=1769511765", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS07_000001_3.jpg?v=1769511765", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS07_000001_4.jpg?v=1769511765", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS07_000001_5.jpg?v=1769511765", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS07_000001_6.jpg?v=1769511765", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS07_000001_8.jpg?v=1769511765", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS07_000001_7.jpg?v=1769511765", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2611PS07_000001_9.jpg?v=1769511765"], "extra_k08": {"28": 1, "30": 1, "32": 1, "34": 1, "36": 1, "38": 1}}, {"key": "1921ML11-000001", "articulo": "1921ML11", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "CAMISETA MANGA LARGA CUELLO PARTIDO", "familia": "CAMISETA MANGA LARGA HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"M": 1, "L": 5, "XL": 3, "XXL": 3, "3XL": 2}, "total": 14, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/1921ML11_000001_1.jpg?v=1763548758", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/1921ML11_000001_2.jpg?v=1763548758", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/1921ML11_000001_3.jpg?v=1763548758", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/1921ML11_000001_4.jpg?v=1763548758"], "extra_k08": {"M": 1, "L": 2, "XL": 2, "XXL": 2, "3XL": 1}}, {"key": "2011PT00-000001", "articulo": "2011PT00", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "PANTALON STRETCH REGULAR", "familia": "PANTALON LARGO HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"28": 1, "30": 1, "31": 1, "34": 1, "38": 1}, "total": 5, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2011PT00_000001_1.jpg?v=1760566630", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2011PT00_000001_2.jpg?v=1760566630", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2011PT00_000001_3.jpg?v=1760566630", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2011PT00_000001_4.jpg?v=1760566630"], "extra_k08": {"28": 1, "30": 1, "31": 1, "34": 1, "38": 1}}, {"key": "2511MC62-000030", "articulo": "2511MC62", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "Camiseta Manga Corta", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"S": 1, "L": 8, "XL": 33, "XXL": 15, "3XL": 22}, "total": 79, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC62_000030_1.jpg?v=1760528242", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC62_000030_2.jpg?v=1760528242", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC62_000030_3.jpg?v=1760528243", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC62_000030_4.jpg?v=1760528243", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC62_000030_5.jpg?v=1760528242", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC62_000030_6.jpg?v=1760528242", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC62_000030_7.jpg?v=1760528242"], "extra_k08": {"S": 1, "L": 2, "XL": 2, "XXL": 2, "3XL": 2}}, {"key": "2512PS59-000001", "articulo": "2512PS59", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "SHORT JEANS COLOR TRENZA", "familia": "PANTALON CORTO MUJER", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"34": 2, "36": 10, "38": 10, "40": 9, "42": 5, "44": 1}, "total": 37, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS59_000001_1.jpg?v=1760533493", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS59_000001_2.jpg?v=1760533493", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS59_000001_3.jpg?v=1760533493", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS59_000001_4.jpg?v=1760533493", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS59_000001_5.jpg?v=1760533493", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS59_000001_6.jpg?v=1760533494", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS59_000001_7.jpg?v=1760533493", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS59_000001_8.jpg?v=1760533493"], "extra_k08": {"34": 2, "36": 2, "38": 2, "40": 2, "42": 2, "44": 1}}, {"key": "2211PS93-000070", "articulo": "2211PS93", "color": "000070", "descri_col": "GRIS CLARO VIGORÉ / LIGHT GREY VIGORÉ", "descri_art": "PANTALON CORTO JOGGER INTERLOCK", "familia": "PANTALON CORTO HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"S": 1, "M": 2, "L": 1, "XXL": 4}, "total": 8, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2211PS93_000070_4.jpg?v=1775817993", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2211PS93_000070_1.jpg?v=1775817993", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2211PS93_000070_2.jpg?v=1775817993", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2211PS93_000070_3.jpg?v=1775817993", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2211PS93_000070_5.jpg?v=1760575199", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2211PS93_000070_6.jpg?v=1760575199"], "extra_k08": {"S": 1, "M": 2, "L": 1, "XXL": 2}}, {"key": "2312BL50-000001", "articulo": "2312BL50", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "BLUSAS TIRANTE", "familia": "BLUSAS", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"S": 3, "M": 4, "L": 3, "XL": 2, "XXL": 2}, "total": 14, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312BL50_000001_1.jpg?v=1760582530", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312BL50_000001_2.jpg?v=1760582530", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312BL50_000001_3.jpg?v=1760582531", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312BL50_000001_4.jpg?v=1760582530", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312BL50_000001_5.jpg?v=1760582530", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312BL50_000001_6.jpg?v=1760582530", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312BL50_000001_7.jpg?v=1760582530", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312BL50_000001_8.jpg?v=1760582530"], "extra_k08": {"S": 1, "M": 2, "L": 2, "XL": 2, "XXL": 2}}, {"key": "2512TP01-000001", "articulo": "2512TP01", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "CAMISETA MUJER FLAME DETALLE BLONDA", "familia": "TOP MUJER", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"XS": 6, "S": 3, "M": 1, "L": 4, "XL": 3}, "total": 17, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP01_000001_1.jpg?v=1760534458", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP01_000001_2.jpg?v=1760534458", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP01_000001_3.jpg?v=1760534459", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP01_000001_4.jpg?v=1760534458", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP01_000001_5.jpg?v=1760534458", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP01_000001_6.jpg?v=1760534458", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP01_000001_7.jpg?v=1760534458", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP01_000001_8.jpg?v=1760534458", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP01_000001_9.jpg?v=1760534458"], "extra_k08": {"XS": 2, "S": 2, "M": 1, "L": 2, "XL": 2}}, {"key": "2312FA64-000001", "articulo": "2312FA64", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "FALDA CORTA", "familia": "FALDA MUJER", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"34": 5, "36": 4, "40": 7, "42": 1}, "total": 17, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312FA64_000001_1.jpg?v=1760582926", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312FA64_000001_2.jpg?v=1760582925", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312FA64_000001_3.jpg?v=1760582925", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312FA64_000001_4.jpg?v=1760582925", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312FA64_000001_5.jpg?v=1760582925", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312FA64_000001_6.jpg?v=1760582925", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312FA64_000001_7.jpg?v=1760582926", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312FA64_000001_8.jpg?v=1760582926"], "extra_k08": {"34": 2, "36": 2, "40": 2, "42": 1}}, {"key": "2511MC65-000030", "articulo": "2511MC65", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "Camiseta Manga Corta", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"S": 2, "M": 5, "L": 9, "XL": 6, "XXL": 6}, "total": 28, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC65_000030_1.jpg?v=1760528329", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC65_000030_2.jpg?v=1760528329", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC65_000030_3.jpg?v=1760528330", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC65_000030_4.jpg?v=1760528329", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC65_000030_5.jpg?v=1760528329"], "extra_k08": {"S": 2, "M": 2, "L": 2, "XL": 2, "XXL": 1}}, {"key": "2512BL82-000001", "articulo": "2512BL82", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "BLUSA TIRANTES BORDADA", "familia": "BLUSAS", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"XS": 12, "S": 11, "M": 4, "L": 4, "XL": 2, "XXL": 1}, "total": 34, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL82_000001_1.jpg?v=1760532122", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL82_000001_2.jpg?v=1760532122", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL82_000001_3.jpg?v=1760532122", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL82_000001_4.jpg?v=1760532122", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL82_000001_5.jpg?v=1760532122", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL82_000001_6.jpg?v=1760532123", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL82_000001_7.jpg?v=1760532121", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL82_000001_8.jpg?v=1760532122"], "extra_k08": {"XS": 1, "S": 2, "M": 2, "L": 2, "XL": 1, "XXL": 1}}, {"key": "2511MC63-000001", "articulo": "2511MC63", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "Camiseta Manga Corta", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"M": 2, "XL": 7, "XXL": 12, "3XL": 12}, "total": 33, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC63_000001_1.jpg?v=1760528285", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC63_000001_2.jpg?v=1760528286", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC63_000001_3.jpg?v=1760528286", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC63_000001_4.jpg?v=1760528286", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC63_000001_5.jpg?v=1760528285", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC63_000001_6.jpg?v=1760528286", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC63_000001_7.jpg?v=1760528285"], "extra_k08": {"M": 2, "XL": 2, "XXL": 2, "3XL": 2}}, {"key": "2511CC03-000001", "articulo": "2511CC03", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "Camisa Manga Corta", "familia": "CAMISA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"S": 6, "M": 7, "XL": 1, "XXL": 6, "3XL": 9}, "total": 29, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511CC03_000001_1.jpg?v=1760525037", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511CC03_000001_2.jpg?v=1760525038", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511CC03_000001_3.jpg?v=1760525038", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511CC03_000001_4.jpg?v=1760525038", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511CC03_000001_5.jpg?v=1760525037", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511CC03_000001_6.jpg?v=1760525037", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511CC03_000001_7.jpg?v=1760525038"], "extra_k08": {"S": 2, "M": 2, "XL": 1, "XXL": 2, "3XL": 2}}, {"key": "2511PS82-000321", "articulo": "2511PS82", "color": "000321", "descri_col": "DENIM BLANCO / WHITE DENIM", "descri_art": "PANTALÓN PIRATA TWILL CARGO RELAXED", "familia": "PANTALON CORTO HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"32": 14, "34": 24, "36": 37, "38": 21, "40": 30}, "total": 126, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS82_000321_1.jpg?v=1760530016", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS82_000321_2.jpg?v=1760530016", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS82_000321_3.jpg?v=1760530016", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS82_000321_4.jpg?v=1760530016", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS82_000321_5.jpg?v=1760530017", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS82_000321_6.jpg?v=1760530016", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS82_000321_7.jpg?v=1760530016", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS82_000321_8.jpg?v=1760530017", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS82_000321_9.jpg?v=1760530017", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS82_000321_10.jpg?v=1760530017"], "extra_k08": {"32": 2, "34": 2, "36": 2, "38": 2, "40": 2}}, {"key": "2511MC66-000030", "articulo": "2511MC66", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "Camiseta Manga Corta", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"L": 5, "XL": 5, "XXL": 7, "3XL": 11}, "total": 28, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC66_000030_1.jpg?v=1760528346", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC66_000030_2.jpg?v=1760528346", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC66_000030_3.jpg?v=1760528346", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC66_000030_4.jpg?v=1760528346", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC66_000030_5.jpg?v=1760528347", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC66_000030_6.jpg?v=1760528346", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC66_000030_7.jpg?v=1760528346"], "extra_k08": {"L": 2, "XL": 2, "XXL": 2, "3XL": 2}}, {"key": "2512PT89-000030", "articulo": "2512PT89", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "PANTALON JOGGER MUJER BORDADO", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"34": 6, "36": 44, "38": 29, "40": 26}, "total": 105, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT89_000030_1.jpg?v=1760534234", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT89_000030_2.jpg?v=1760534234", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT89_000030_3.jpg?v=1760534234", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT89_000030_4.jpg?v=1760534234", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT89_000030_5.jpg?v=1760534234", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT89_000030_6.jpg?v=1760534234", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT89_000030_7.jpg?v=1760534234", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT89_000030_8.jpg?v=1760534234"], "extra_k08": {"34": 2, "36": 2, "38": 2, "40": 2}}, {"key": "2312VS26-000001", "articulo": "2312VS26", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "VESTIDO TIRANTE", "familia": "VESTIDOS", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"XS": 3, "S": 3, "M": 3, "L": 3, "XXL": 2}, "total": 14, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312VS26_000001_1.jpg?v=1760584317", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312VS26_000001_2.jpg?v=1760584317", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312VS26_000001_3.jpg?v=1760584317", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312VS26_000001_4.jpg?v=1760584317", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312VS26_000001_5.jpg?v=1760584316", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312VS26_000001_6.jpg?v=1760584317", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312VS26_000001_7.jpg?v=1760584316", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312VS26_000001_8.jpg?v=1760584316", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2312VS26_000001_9.jpg?v=1760584317"], "extra_k08": {"XS": 2, "S": 2, "M": 2, "L": 2, "XXL": 2}}, {"key": "2512PS76-000001", "articulo": "2512PS76", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "SHORT LINO BORDADO", "familia": "PANTALON CORTO MUJER", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"34": 26, "36": 50, "38": 21, "40": 37, "42": 15, "44": 8}, "total": 157, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS76_000001_1.jpg?v=1760533702", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS76_000001_2.jpg?v=1760533702", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS76_000001_3.jpg?v=1760533702", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS76_000001_4.jpg?v=1760533702", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS76_000001_5.jpg?v=1760533702", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS76_000001_6.jpg?v=1760533702", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS76_000001_7.jpg?v=1760533702", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS76_000001_8.jpg?v=1760533702"], "extra_k08": {"34": 1, "36": 2, "38": 2, "40": 2, "42": 1, "44": 1}}, {"key": "2512TP75-000001", "articulo": "2512TP75", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "TOP MUJER PUNTO CANALE BORDADO CALADO", "familia": "TOP MUJER", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"XS": 2, "S": 3, "M": 2, "L": 8, "XL": 6, "XXL": 13}, "total": 34, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP75_000001_1.jpg?v=1760536642", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP75_000001_2.jpg?v=1760536642", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP75_000001_3.jpg?v=1760536642", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP75_000001_4.jpg?v=1760536642", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP75_000001_5.jpg?v=1760536642", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP75_000001_6.jpg?v=1760536642", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512TP75_000001_7.jpg?v=1760536642"], "extra_k08": {"XS": 2, "S": 2, "M": 2, "L": 2, "XL": 2, "XXL": 1}}, {"key": "2511PS35-000321", "articulo": "2511PS35", "color": "000321", "descri_col": "DENIM BLANCO / WHITE DENIM", "descri_art": "BERMUDA BLANCA REGULAR TWILL ELÁSTICO", "familia": "PANTALON CORTO HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"26": 9, "30": 8, "34": 3, "36": 1, "38": 12}, "total": 33, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS35_000321_1.jpg?v=1760529746", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS35_000321_2.jpg?v=1760529745", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS35_000321_3.jpg?v=1760529745", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS35_000321_4.jpg?v=1760529745", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS35_000321_5.jpg?v=1760529745", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS35_000321_6.jpg?v=1760529745", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS35_000321_7.jpg?v=1760529745", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS35_000321_8.jpg?v=1760529745", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS35_000321_9.jpg?v=1760529745", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS35_000321_10.jpg?v=1760529746"], "extra_k08": {"26": 2, "30": 2, "34": 2, "36": 1, "38": 1}}, {"key": "2512PS55-000001", "articulo": "2512PS55", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "SHORT JEANS COLOR CINTURON", "familia": "PANTALON CORTO MUJER", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"34": 12, "36": 11, "38": 4, "44": 1}, "total": 28, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS55_000001_1.jpg?v=1760533475", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS55_000001_2.jpg?v=1760533476", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS55_000001_3.jpg?v=1760533475", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS55_000001_4.jpg?v=1760533475", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS55_000001_5.jpg?v=1760533475", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS55_000001_6.jpg?v=1760533475", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS55_000001_7.jpg?v=1760533475", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PS55_000001_8.jpg?v=1760533475"], "extra_k08": {"34": 1, "36": 2, "38": 2, "44": 1}}, {"key": "2512VS02-000001", "articulo": "2512VS02", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "VESTIDO MUJER CAMISERO LINO", "familia": "VESTIDOS", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"XS": 8, "S": 6, "M": 1, "L": 1, "XL": 2}, "total": 18, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512VS02_000001_1.jpg?v=1760537170", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512VS02_000001_2.jpg?v=1760537170", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512VS02_000001_3.jpg?v=1760537170", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512VS02_000001_4.jpg?v=1760537170", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512VS02_000001_5.jpg?v=1760537170", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512VS02_000001_6.jpg?v=1760537170", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512VS02_000001_7.jpg?v=1760537170", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512VS02_000001_8.jpg?v=1760537170"], "extra_k08": {"XS": 2, "S": 2, "M": 1, "L": 1, "XL": 2}}, {"key": "2512PT95-000001", "articulo": "2512PT95", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "PANTALON JOGGER MUJER LINO", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"34": 1, "36": 2, "40": 6, "42": 4, "44": 1}, "total": 14, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT95_000001_1.jpg?v=1760534342", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT95_000001_2.jpg?v=1760534342", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT95_000001_3.jpg?v=1760534342", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT95_000001_4.jpg?v=1760534342", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT95_000001_5.jpg?v=1760534342", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT95_000001_6.jpg?v=1760534342", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT95_000001_7.jpg?v=1760534342", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512PT95_000001_8.jpg?v=1760534342"], "extra_k08": {"34": 1, "36": 2, "40": 2, "42": 2, "44": 1}}, {"key": "2511MC61-000030", "articulo": "2511MC61", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "Camiseta Manga Corta", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"L": 1, "XL": 1, "XXL": 3, "3XL": 24}, "total": 29, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC61_000030_1.jpg?v=1760528214", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC61_000030_2.jpg?v=1760528214", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC61_000030_3.jpg?v=1760528214", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC61_000030_5.jpg?v=1760528214", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC61_000030_6.jpg?v=1760528214", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC61_000030_7.jpg?v=1760528214", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC61_000030_8.jpg?v=1760528214"], "extra_k08": {"L": 1, "XL": 1, "XXL": 2, "3XL": 2}}, {"key": "2512BL31-000001", "articulo": "2512BL31", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "CAMISA MANGA CORTA BORDADA", "familia": "BLUSAS", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"XS": 7, "S": 5, "M": 4, "L": 3, "XXL": 1}, "total": 20, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL31_000001_1.jpg?v=1760531778", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL31_000001_2.jpg?v=1760531778", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL31_000001_3.jpg?v=1760531778", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL31_000001_4.jpg?v=1760531779", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL31_000001_5.jpg?v=1760531778", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL31_000001_6.jpg?v=1760531778", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL31_000001_7.jpg?v=1760531778", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL31_000001_8.jpg?v=1760531778"], "extra_k08": {"XS": 1, "S": 2, "M": 2, "L": 2, "XXL": 1}}, {"key": "2412FA13-000001", "articulo": "2412FA13", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "FALDA CORTA", "familia": "FALDA MUJER", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"34": 2, "36": 1, "40": 4, "42": 4, "44": 1}, "total": 12, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2412FA13_000001_1.jpg?v=1760588290", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2412FA13_000001_2.jpg?v=1760588290", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2412FA13_000001_3.jpg?v=1760588290", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2412FA13_000001_5.jpg?v=1760588290", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2412FA13_000001_6.jpg?v=1760588290", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2412FA13_000001_7.jpg?v=1760588290", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2412FA13_000001_8.jpg?v=1760588290", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2412FA13_000001_9.jpg?v=1760588290"], "extra_k08": {"34": 2, "36": 1, "40": 2, "42": 2, "44": 1}}, {"key": "2212PT22-000001", "articulo": "2212PT22", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "Jeans", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"34": 1, "36": 2, "38": 2, "40": 2, "42": 7}, "total": 14, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2212PT22_000001_1.jpg?v=1760576647", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2212PT22_000001_2.jpg?v=1760576647", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2212PT22_000001_3.jpg?v=1760576646", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2212PT22_000001_4.jpg?v=1760576647", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2212PT22_000001_5.jpg?v=1760576647", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2212PT22_000001_6.jpg?v=1760576647"], "extra_k08": {"34": 1, "36": 2, "38": 2, "40": 2, "42": 1}}, {"key": "2511PS16-000030", "articulo": "2511PS16", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "BERMUDA LINO CINTURA ELÁSTICA", "familia": "PANTALON CORTO HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"S": 1, "M": 2, "L": 6, "XL": 14, "XXL": 11}, "total": 34, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS16_000030_1.jpg?v=1760529476", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS16_000030_2.jpg?v=1760529476", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS16_000030_3.jpg?v=1760529476", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS16_000030_4.jpg?v=1760529476", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS16_000030_5.jpg?v=1760529476", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS16_000030_6.jpg?v=1760529476", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS16_000030_7.jpg?v=1760529476", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511PS16_000030_8.jpg?v=1760529476"], "extra_k08": {"S": 1, "M": 2, "L": 2, "XL": 2, "XXL": 2}}, {"key": "2311CC32-000001", "articulo": "2311CC32", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "Camisa Manga Corta", "familia": "CAMISA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"S": 3, "L": 1, "XL": 2, "3XL": 1}, "total": 7, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2311CC32_000001_1.jpg?v=1760579938", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2311CC32_000001_2.jpg?v=1760579939", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2311CC32_000001_3.jpg?v=1760579938", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2311CC32_000001_4.jpg?v=1760579938", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2311CC32_000001_5.jpg?v=1760579938", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2311CC32_000001_6.jpg?v=1760579939", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2311CC32_000001_7.jpg?v=1760579938", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2311CC32_000001_8.jpg?v=1760579938", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2311CC32_000001_9.jpg?v=1760579939"], "extra_k08": {"S": 2, "L": 1, "XL": 2}}, {"key": "2511MC64-000030", "articulo": "2511MC64", "color": "000030", "descri_col": "CRUDO / OFF-WHITE", "descri_art": "Camiseta Manga Corta", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "stock_k08": {}, "stock_warehouse": {"S": 2, "M": 4, "L": 29, "XL": 9, "XXL": 1}, "total": 45, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC64_000030_1.jpg?v=1760528307", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC64_000030_2.jpg?v=1760528308", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC64_000030_3.jpg?v=1760528308", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC64_000030_4.jpg?v=1760528308", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC64_000030_5.jpg?v=1760528308", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC64_000030_6.jpg?v=1760528307", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2511MC64_000030_7.jpg?v=1760528307"], "extra_k08": {"S": 2, "M": 2, "L": 2, "XL": 2, "XXL": 1}}, {"key": "2512BL39-000001", "articulo": "2512BL39", "color": "000001", "descri_col": "BLANCO / WHITE", "descri_art": "BLUSA SIN MANGAS BORDADA", "familia": "BLUSAS", "sexo": "MUJER", "stock_k08": {}, "stock_warehouse": {"XS": 17, "S": 13, "M": 22, "L": 2, "XL": 2, "XXL": 1}, "total": 57, "images": ["https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL39_000001_1.jpg?v=1760531947", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL39_000001_2.jpg?v=1760531947", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL39_000001_3.jpg?v=1760531947", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL39_000001_4.jpg?v=1760531947", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL39_000001_5.jpg?v=1760531947", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL39_000001_6.jpg?v=1760531948", "https://cdn.shopify.com/s/files/1/0922/7858/7767/files/2512BL39_000001_7.jpg?v=1760531947"], "extra_k08": {"XS": 1, "S": 2, "M": 2, "L": 2, "XL": 2, "XXL": 1}}];
+
+const GENDERS = ['HOMBRE','MUJER','GIRL','BOY','UNISEX'].filter(g => CAT.some(i => i.sexo === g));
+const S = { gender: GENDERS[0], family: null, search: '', removed: new Set(), selected: new Map() };
+
+window.addEventListener('DOMContentLoaded', () => {
+  const nav = document.getElementById('nav');
+  const famWrap = nav.querySelector('.fam-wrap');
+  GENDERS.forEach(g => {
+    const btn = document.createElement('button');
+    btn.className = 'gbtn' + (g === S.gender ? ' active' : '');
+    btn.textContent = g;
+    btn.addEventListener('click', () => setGender(g));
+    nav.insertBefore(btn, famWrap);
+  });
+  document.getElementById('fbtn').addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('fmenu').classList.toggle('open');
+  });
+  document.addEventListener('click', () => document.getElementById('fmenu').classList.remove('open'));
+  document.getElementById('search').addEventListener('input', e => { S.search = e.target.value.trim(); render(); });
+  document.getElementById('content').addEventListener('click', handleClick);
+  document.getElementById('content').addEventListener('input', handleInput);
+  renderStats(); buildFamMenu(); render();
+});
+
+function handleClick(e) {
+  if (e.target.classList.contains('arr')) { e.stopPropagation(); carouselMove(e.target.closest('.img-wrap'), e.target.dataset.dir === 'next' ? 1 : -1); return; }
+  if (e.target.classList.contains('dot')) { e.stopPropagation(); carouselGoto(e.target.closest('.img-wrap'), +e.target.dataset.i); return; }
+  if (e.target.classList.contains('img-link') || e.target.closest('.img-link')) { e.stopPropagation(); return; }
+  if (e.target.closest('.qty-cell')) { e.stopPropagation(); return; }
+  if (e.target.classList.contains('sbtn-sel')) { e.stopPropagation(); selectCategory(e.target.dataset.fam); return; }
+  if (e.target.classList.contains('sbtn-del')) { e.stopPropagation(); removeCategory(e.target.dataset.fam); return; }
+  const card = e.target.closest('.card');
+  if (card) toggleCard(card.dataset.key);
+}
+
+function handleInput(e) {
+  const input = e.target.tagName === 'INPUT' && e.target.closest('.qty-cell') ? e.target : null;
+  if (!input) return;
+  e.stopPropagation();
+  const key = input.dataset.key, size = input.dataset.size;
+  if (!S.selected.has(key)) return;
+  const n = Math.max(0, parseInt(input.value) || 0);
+  const sizeMap = S.selected.get(key);
+  if (n === 0) delete sizeMap[size]; else sizeMap[size] = n;
+  updateToolbar();
+}
+
+function setGender(g) {
+  S.gender = g; S.family = null; S.search = '';
+  document.getElementById('search').value = '';
+  document.querySelectorAll('.gbtn').forEach(b => b.classList.toggle('active', b.textContent === g));
+  buildFamMenu(); render();
+}
+function buildFamMenu() {
+  const items = CAT.filter(i => i.sexo === S.gender && !S.removed.has(i.key));
+  const fams  = [...new Set(items.map(i => i.familia))].sort();
+  const menu  = document.getElementById('fmenu');
+  menu.innerHTML = '';
+  const makeOpt = (label, cnt, fam) => {
+    const d = document.createElement('div');
+    d.className = 'fopt' + (S.family === fam ? ' active' : '');
+    d.innerHTML = '<span>' + label + '</span><span style="font-size:.64rem;color:var(--muted)">' + cnt + '</span>';
+    d.addEventListener('click', () => { S.family = fam; menu.classList.remove('open'); buildFamMenu(); render(); });
+    menu.appendChild(d);
+  };
+  makeOpt('Todas las familias', items.length, null);
+  fams.forEach(f => makeOpt(f, items.filter(i => i.familia === f).length, f));
+}
+function resetFilters() { S.family = null; S.search = ''; document.getElementById('search').value = ''; buildFamMenu(); render(); }
+function getFiltered() {
+  let items = CAT.filter(i => i.sexo === S.gender && !S.removed.has(i.key));
+  if (S.family) items = items.filter(i => i.familia === S.family);
+  if (S.search) {
+    const q = S.search.toLowerCase();
+    items = items.filter(i => i.articulo.toLowerCase().includes(q) || i.color.includes(q) ||
+      i.familia.toLowerCase().includes(q) || (i.descri_art||'').toLowerCase().includes(q) ||
+      (i.descri_col||'').toLowerCase().includes(q));
+  }
+  return items;
+}
+function toggleCard(key) {
+  if (S.selected.has(key)) S.selected.delete(key);
+  else S.selected.set(key, {});
+  const card = document.querySelector('.card[data-key="' + key + '"]');
+  if (card) refreshCard(card, key);
+  updateToolbar();
+}
+function selectCategory(fam) {
+  const items = getFiltered().filter(i => i.familia === fam);
+  const allSel = items.length > 0 && items.every(i => S.selected.has(i.key));
+  items.forEach(i => { if (allSel) S.selected.delete(i.key); else if (!S.selected.has(i.key)) S.selected.set(i.key, {}); });
+  items.forEach(i => { const c = document.querySelector('.card[data-key="' + i.key + '"]'); if (c) refreshCard(c, i.key); });
+  const btn = document.querySelector('.sbtn-sel[data-fam="' + CSS.escape(fam) + '"]');
+  if (btn) { const na = items.every(i => S.selected.has(i.key)); btn.textContent = na ? '\u2713 Todos' : '\u2610 Seleccionar todos'; btn.classList.toggle('all', na); }
+  updateToolbar();
+}
+function refreshCard(card, key) {
+  const isSel = S.selected.has(key);
+  card.classList.toggle('sel', isSel);
+  const chk = card.querySelector('.chk');
+  if (chk) chk.textContent = isSel ? '\u2713' : '';
+}
+function removeSelected() { S.selected.forEach((_,k) => S.removed.add(k)); S.selected.clear(); buildFamMenu(); render(); updateToolbar(); }
+function removeCategory(fam) {
+  getFiltered().filter(i => i.familia === fam).forEach(i => { S.removed.add(i.key); S.selected.delete(i.key); });
+  buildFamMenu(); render(); updateToolbar();
+}
+function restoreAll() { S.removed.clear(); S.selected.clear(); buildFamMenu(); render(); updateToolbar(); }
+function totalUnits() {
+  let t = 0;
+  S.selected.forEach(sizes => Object.values(sizes).forEach(v => t += (+v || 0)));
+  return t;
+}
+function updateToolbar() {
+  const hasSel = S.selected.size > 0, hasRem = S.removed.size > 0, units = totalUnits();
+  document.getElementById('selInfo').style.display    = hasSel ? '' : 'none';
+  document.getElementById('selN').textContent          = S.selected.size;
+  document.getElementById('selUnits').textContent      = units.toLocaleString();
+  document.getElementById('btnDel').style.display      = hasSel ? '' : 'none';
+  document.getElementById('btnRestore').style.display  = hasRem ? '' : 'none';
+  document.getElementById('removedN').textContent      = S.removed.size;
+  document.getElementById('btnExport').style.display   = hasSel ? '' : 'none';
+  document.getElementById('orderTot').style.display    = hasSel ? '' : 'none';
+  document.getElementById('orderN').textContent        = units.toLocaleString();
+}
+function exportCSV() {
+  const header = ['Area','Article','Color','Pack S1','Pack S2','Pack S3','Pack S4','Pack S5',
+                  'Pack S6','Pack S7','Pack S8','Pack S9','Pack S10','Pack S11','Pack S12','Pack S13','Pack S14','Pack S15'];
+  const rows = [header];
+  let hasData = false;
+  S.selected.forEach((sizeQtys, key) => {
+    const item = CAT.find(i => i.key === key);
+    if (!item) return;
+    const sizes = getSizes(item.stock_k08, item.stock_warehouse);
+    const anyQty = sizes.some(sz => (+sizeQtys[sz] || 0) > 0);
+    if (!anyQty) return;
+    hasData = true;
+    const packs = new Array(15).fill(0);
+    sizes.forEach((sz, idx) => { if (idx < 15) packs[idx] = +sizeQtys[sz] || 0; });
+    rows.push([8, item.articulo, item.color, ...packs]);
+  });
+  if (!hasData) { alert('No hay cantidades introducidas todavia.'); return; }
+  const csv = '\uFEFF' + rows.map(r => r.map(v => '"' + String(v||'').replace(/"/g, '""') + '"').join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'koroshi_pedido_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+function renderStats() {
+  const k = CAT.reduce((a,i) => a + Object.values(i.stock_k08||{}).reduce((x,y)=>x+y,0), 0);
+  const w = CAT.reduce((a,i) => a + Object.values(i.stock_warehouse||{}).reduce((x,y)=>x+y,0), 0);
+  const e = CAT.reduce((a,i) => a + Object.values(i.extra_k08||{}).reduce((x,y)=>x+y,0), 0);
+  document.getElementById('stats').innerHTML =
+    '<div class="stat"><div class="n">' + CAT.length + '</div><div class="l">Referencias</div></div>' +
+    '<div class="stat"><div class="n" style="color:var(--k08)">' + k.toLocaleString() + '</div><div class="l">K08 Stock</div></div>' +
+    '<div class="stat"><div class="n" style="color:var(--wh)">' + w.toLocaleString() + '</div><div class="l">WH Stock</div></div>' +
+    '<div class="stat"><div class="n" style="color:var(--extra)">' + e.toLocaleString() + '</div><div class="l">Extra K08</div></div>';
+}
+function getSizes(k08, wh, extra) {
+  const all = new Set([...Object.keys(k08||{}), ...Object.keys(wh||{}), ...Object.keys(extra||{})]);
+  return [...all].sort((a,b) => (SIZE_ORDER.indexOf(a)<0?999:SIZE_ORDER.indexOf(a))-(SIZE_ORDER.indexOf(b)<0?999:SIZE_ORDER.indexOf(b)));
+}
+function renderCard(item) {
+  const imgs = item.images || [];
+  const k08  = item.stock_k08 || {};
+  const wh   = item.stock_warehouse || {};
+  const ext  = item.extra_k08 || {};
+  const k08t = Object.values(k08).reduce((a,b)=>a+b,0);
+  const wht  = Object.values(wh).reduce((a,b)=>a+b,0);
+  const extt = Object.values(ext).reduce((a,b)=>a+b,0);
+  const isSel = S.selected.has(item.key);
+  const sizeQtys = S.selected.get(item.key) || {};
+  const sizes = getSizes(k08, wh, ext);
+
+  let imgHtml = '';
+  if (imgs.length) {
+    imgHtml = imgs.map((u,i) => '<img src="' + u + '" class="' + (i===0?'on':'') + '" loading="' + (i===0?'eager':'lazy') + '">').join('');
+    if (imgs.length > 1) {
+      imgHtml += '<div class="c-arrows"><button class="arr" data-dir="prev">\u2039</button><button class="arr" data-dir="next">\u203a</button></div>';
+      imgHtml += '<div class="c-dots">' + imgs.map((_,i) => '<div class="dot' + (i===0?' on':'') + '" data-i="' + i + '"></div>').join('') + '</div>';
+    }
+    imgHtml += '<a href="' + imgs[0] + '" target="_blank" class="img-link" referrerpolicy="no-referrer-when-downgrade">\uD83D\uDD17</a>';
+  } else {
+    imgHtml = '<div class="no-img"><span style="font-size:1.8rem">\uD83D\uDCF7</span><p style="font-size:.6rem;text-transform:uppercase">Sin imagen</p></div>';
+  }
+
+  // Extra pill only if there's extra stock
+  const extraPill = extt > 0
+    ? '<div class="stk-pill e"><div class="pn">' + extt + '</div><div class="pl">Extra K08</div></div>'
+    : '';
+
+  const sizeRows = sizes.map((sz, idx) => {
+    const kv  = k08[sz] || 0;
+    const wv  = wh[sz]  || 0;
+    const ev  = ext[sz] || 0;
+    const qv  = sizeQtys[sz] || '';
+    const pos = 'S' + (idx + 1);
+    return '<tr>' +
+      '<td class="td-sz"><span style="color:var(--muted);font-size:.52rem;margin-right:.2rem">' + pos + '</span>' + sz + '</td>' +
+      '<td class="td-k">' + (kv||'-') + '</td>' +
+      '<td class="td-w">' + (wv||'-') + '</td>' +
+      '<td class="td-e">' + (ev||'-') + '</td>' +
+      '<td class="qty-cell"><input type="number" min="0" placeholder="0" value="' + qv + '" data-key="' + item.key + '" data-size="' + sz + '"></td>' +
+      '</tr>';
+  }).join('');
+
+  return '<div class="card' + (isSel?' sel':'') + '" data-key="' + item.key + '">' +
+    '<div class="chk">' + (isSel?'\u2713':'') + '</div>' +
+    '<div class="img-wrap" data-idx="0">' + imgHtml + '</div>' +
+    '<div class="info">' +
+      '<div class="art-row"><div class="art-id">' + item.articulo + '</div><div class="col-badge">' + item.color + '</div></div>' +
+      '<div class="descri"><b>' + item.descri_col + '</b> \u00B7 ' + item.descri_art + '</div>' +
+      '<div class="stk-summary">' +
+        '<div class="stk-pill k"><div class="pn">' + k08t + '</div><div class="pl">K08</div></div>' +
+        '<div class="stk-pill w"><div class="pn">' + wht + '</div><div class="pl">Warehouse</div></div>' +
+        extraPill +
+      '</div>' +
+      '<table class="size-tbl">' +
+        '<thead><tr><th>Talla</th><th class="k-col">K08</th><th class="w-col">WH</th><th class="e-col">Extra</th><th class="q-col">Pedido</th></tr></thead>' +
+        '<tbody>' + sizeRows + '</tbody>' +
+      '</table>' +
+    '</div>' +
+  '</div>';
+}
+function render() {
+  const items = getFiltered();
+  const content = document.getElementById('content');
+  if (!items.length) { content.innerHTML = '<div class="no-results">Sin resultados.</div>'; updateBottom([]); return; }
+  const byFam = {};
+  items.forEach(i => { (byFam[i.familia] = byFam[i.familia]||[]).push(i); });
+  const fams = Object.keys(byFam).sort();
+  content.innerHTML = fams.map(f => {
+    const cnt = byFam[f].length;
+    const allSel = cnt > 0 && byFam[f].every(i => S.selected.has(i.key));
+    const famEsc = f.replace(/"/g, '&quot;');
+    return '<div class="sec-hdr">' +
+      '<span class="sec-name">' + f + '</span>' +
+      '<span class="sec-cnt">' + cnt + ' art\u00EDculo' + (cnt!==1?'s':'') + '</span>' +
+      '<button class="sbtn sbtn-sel' + (allSel?' all':'') + '" data-fam="' + famEsc + '">' + (allSel?'\u2713 Todos':'\u2610 Seleccionar todos') + '</button>' +
+      '<button class="sbtn sbtn-del" data-fam="' + famEsc + '">\uD83D\uDDD1 Eliminar</button>' +
+    '</div>' +
+    '<div class="grid">' + byFam[f].map(renderCard).join('') + '</div>';
+  }).join('');
+  updateBottom(items);
+}
+function updateBottom(items) {
+  const k = items.reduce((a,i) => a + Object.values(i.stock_k08||{}).reduce((x,y)=>x+y,0), 0);
+  const w = items.reduce((a,i) => a + Object.values(i.stock_warehouse||{}).reduce((x,y)=>x+y,0), 0);
+  document.getElementById('totR').textContent = items.length;
+  document.getElementById('totK').textContent = k.toLocaleString();
+  document.getElementById('totW').textContent = w.toLocaleString();
+  updateToolbar();
+}
+function carouselMove(wrap, d) { const imgs = wrap.querySelectorAll('img'); carouselGoto(wrap, ((+wrap.dataset.idx||0)+d+imgs.length)%imgs.length); }
+function carouselGoto(wrap, idx) {
+  const imgs = wrap.querySelectorAll('img'), dots = wrap.querySelectorAll('.dot');
+  imgs.forEach((img,i) => img.classList.toggle('on', i===idx));
+  dots.forEach((d,i) => d.classList.toggle('on', i===idx));
+  wrap.dataset.idx = idx;
+  const lnk = wrap.querySelector('.img-link'); if (lnk && imgs[idx]) lnk.href = imgs[idx].src;
+}
+
+</script>
+</body>
+</html>
