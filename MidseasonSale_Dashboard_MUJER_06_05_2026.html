@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midseason Sale V26 MUJER - Koroshi</title>
+    <title>Midseason Sale V26 MUJER (Updated 03/06) - Koroshi</title>
     <style>
         * {
             margin: 0;
@@ -276,39 +276,41 @@
 
         // Real data from REBAJAS_V26_06_05_2026_MUJER.xls
         const saleData = [
-            {"article": "2612BL05", "color": "000015", "referencia": "2612BL05_000015", "familia": "BLUSAS", "sexo": "MUJER", "precio_actual": 29.99, "precio_rebaja": 22.99, "descuento": -0.2334111370456819},
-            {"article": "2612JA10", "color": "000015", "referencia": "2612JA10_000015", "familia": "CHAQUETA MUJER", "sexo": "MUJER", "precio_actual": 59.99, "precio_rebaja": 39.99, "descuento": -0.3333888981496916},
-            {"article": "2612JA20", "color": "000019", "referencia": "2612JA20_000019", "familia": "CHAQUETA MUJER", "sexo": "MUJER", "precio_actual": 59.99, "precio_rebaja": 49.99, "descuento": -0.1666944490748458},
-            {"article": "2612JA19", "color": "000019", "referencia": "2612JA19_000019", "familia": "CHAQUETA MUJER", "sexo": "MUJER", "precio_actual": 59.99, "precio_rebaja": 49.99, "descuento": -0.1666944490748458},
-            {"article": "2612JA29", "color": "000005", "referencia": "2612JA29_000005", "familia": "CHAQUETA MUJER", "sexo": "MUJER", "precio_actual": 69.99, "precio_rebaja": 39.99, "descuento": -0.42863266180882975},
-            {"article": "2612JA21", "color": "000003", "referencia": "2612JA21_000003", "familia": "CHAQUETA MUJER", "sexo": "MUJER", "precio_actual": 59.99, "precio_rebaja": 49.99, "descuento": -0.1666944490748458},
-            {"article": "2612FA00", "color": "000301", "referencia": "2612FA00_000301", "familia": "FALDA MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 32.99, "descuento": -0.17504376094023505},
-            {"article": "2612FA09", "color": "000301", "referencia": "2612FA09_000301", "familia": "FALDA MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 29.99, "descuento": -0.2500625156289073},
-            {"article": "2612PT06", "color": "000301", "referencia": "2612PT06_000301", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 42.99, "precio_rebaja": 29.99, "descuento": -0.302395906024657},
-            {"article": "2612PT04", "color": "000301", "referencia": "2612PT04_000301", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 42.99, "precio_rebaja": 25.99, "descuento": -0.39544080018608985},
-            {"article": "2612PT02", "color": "000300", "referencia": "2612PT02_000300", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 42.99, "precio_rebaja": 29.99, "descuento": -0.302395906024657},
-            {"article": "2612PT36", "color": "000301", "referencia": "2612PT36_000301", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 42.99, "precio_rebaja": 29.99, "descuento": -0.302395906024657},
-            {"article": "2612PT60", "color": "000001", "referencia": "2612PT60_000001", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
-            {"article": "2612PT35", "color": "000302", "referencia": "2612PT35_000302", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 42.99, "precio_rebaja": 29.99, "descuento": -0.302395906024657},
-            {"article": "2612PT22", "color": "000301", "referencia": "2612PT22_000301", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
-            {"article": "2612PT24", "color": "000003", "referencia": "2612PT24_000003", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 42.99, "precio_rebaja": 35.99, "descuento": -0.16282856478250754},
-            {"article": "2612PT61", "color": "000301", "referencia": "2612PT61_000301", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 42.99, "precio_rebaja": 35.99, "descuento": -0.16282856478250754},
-            {"article": "2612PT21", "color": "000010", "referencia": "2612PT21_000010", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
-            {"article": "2612PT12", "color": "000301", "referencia": "2612PT12_000301", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
-            {"article": "2612PT11", "color": "000001", "referencia": "2612PT11_000001", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
-            {"article": "2612PT16", "color": "000302", "referencia": "2612PT16_000302", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 29.99, "descuento": -0.2500625156289073},
-            {"article": "2612TP03", "color": "000015", "referencia": "2612TP03_000015", "familia": "TOP MUJER", "sexo": "MUJER", "precio_actual": 32.99, "precio_rebaja": 29.99, "descuento": -0.09093664746893008},
-            {"article": "2612TP04", "color": "000030", "referencia": "2612TP04_000030", "familia": "TOP MUJER", "sexo": "MUJER", "precio_actual": 22.99, "precio_rebaja": 19.99, "descuento": -0.13049151805132667},
-            {"article": "2612TP13", "color": "000003", "referencia": "2612TP13_000003", "familia": "TOP MUJER", "sexo": "MUJER", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
-            {"article": "2612TR06", "color": "000006", "referencia": "2612TR06_000006", "familia": "TRICOT MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 22.99, "descuento": -0.42510627656914235},
-            {"article": "2612TR09", "color": "000323", "referencia": "2612TR09_000323", "familia": "TRICOT MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 22.99, "descuento": -0.42510627656914235},
-            {"article": "2612TR26", "color": "000323", "referencia": "2612TR26_000323", "familia": "TRICOT MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 19.99, "descuento": -0.5001250312578145},
-            {"article": "2612TR84", "color": "000323", "referencia": "2612TR84_000323", "familia": "TRICOT MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 22.99, "descuento": -0.42510627656914235},
-            {"article": "2612TR12", "color": "000323", "referencia": "2612TR12_000323", "familia": "TRICOT MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 22.99, "descuento": -0.42510627656914235},
-            {"article": "2612TR25", "color": "000006", "referencia": "2612TR25_000006", "familia": "TRICOT MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
-            {"article": "2612TR24", "color": "000039", "referencia": "2612TR24_000039", "familia": "TRICOT MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
-            {"article": "2612TR23", "color": "000001", "referencia": "2612TR23_000001", "familia": "TRICOT MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
-            {"article": "2612VS08", "color": "000003", "referencia": "2612VS08_000003", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 35.99, "precio_rebaja": 29.99, "descuento": -0.1667129758266186}
+            {"article": "2612BL05", "color": "000015", "referencia": "2612BL05_000015", "familia": "BLUSAS", "sexo": "MUJER", "precio_actual": 22.99, "precio_rebaja": 19.99, "descuento": -0.13049151805132667},
+            {"article": "2612BL29", "color": "000003", "referencia": "2612BL29_000003", "familia": "BLUSAS", "sexo": "MUJER", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
+            {"article": "2612BL31", "color": "000039", "referencia": "2612BL31_000039", "familia": "BLUSAS", "sexo": "MUJER", "precio_actual": 29.99, "precio_rebaja": 22.99, "descuento": -0.2334111370456819},
+            {"article": "2612BL73", "color": "000014", "referencia": "2612BL73_000014", "familia": "BLUSAS", "sexo": "MUJER", "precio_actual": 25.99, "precio_rebaja": 22.99, "descuento": -0.11542901115813775},
+            {"article": "2612FA00", "color": "000301", "referencia": "2612FA00_000301", "familia": "FALDA MUJER", "sexo": "MUJER", "precio_actual": 32.99, "precio_rebaja": 29.99, "descuento": -0.09093664746893008},
+            {"article": "2612FA54", "color": "000039", "referencia": "2612FA54_000039", "familia": "FALDA MUJER", "sexo": "MUJER", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
+            {"article": "2612FA55", "color": "000030", "referencia": "2612FA55_000030", "familia": "FALDA MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 29.99, "descuento": -0.2500625156289073},
+            {"article": "2612PS07", "color": "000301", "referencia": "2612PS07_000301", "familia": "PANTALON CORTO MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 32.99, "descuento": -0.17504376094023505},
+            {"article": "2612PS10", "color": "000306", "referencia": "2612PS10_000306", "familia": "PANTALON CORTO MUJER", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
+            {"article": "2612PT00", "color": "000301", "referencia": "2612PT00_000301", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 35.99, "precio_rebaja": 29.99, "descuento": -0.1667129758266186},
+            {"article": "2612PT02", "color": "000300", "referencia": "2612PT02_000300", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 29.99, "precio_rebaja": 19.99, "descuento": -0.33344448149383127},
+            {"article": "2612PT04", "color": "000301", "referencia": "2612PT04_000301", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
+            {"article": "2612PT06", "color": "000301", "referencia": "2612PT06_000301", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 29.99, "precio_rebaja": 22.99, "descuento": -0.2334111370456819},
+            {"article": "2612PT60", "color": "000001", "referencia": "2612PT60_000001", "familia": "PANTALON LARGO MUJER", "sexo": "MUJER", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
+            {"article": "2612TP03", "color": "000009", "referencia": "2612TP03_000009", "familia": "TOP MUJER", "sexo": "MUJER", "precio_actual": 32.99, "precio_rebaja": 25.99, "descuento": -0.21218551076083672},
+            {"article": "2612TP03", "color": "000015", "referencia": "2612TP03_000015", "familia": "TOP MUJER", "sexo": "MUJER", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
+            {"article": "2612TP23", "color": "000003", "referencia": "2612TP23_000003", "familia": "TOP MUJER", "sexo": "MUJER", "precio_actual": 29.99, "precio_rebaja": 22.99, "descuento": -0.2334111370456819},
+            {"article": "2612TP30", "color": "000323", "referencia": "2612TP30_000323", "familia": "TOP MUJER", "sexo": "MUJER", "precio_actual": 22.99, "precio_rebaja": 19.99, "descuento": -0.13049151805132667},
+            {"article": "2612TP44", "color": "000015", "referencia": "2612TP44_000015", "familia": "TOP MUJER", "sexo": "MUJER", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
+            {"article": "2612TP44", "color": "000030", "referencia": "2612TP44_000030", "familia": "TOP MUJER", "sexo": "MUJER", "precio_actual": 29.99, "precio_rebaja": 22.99, "descuento": -0.2334111370456819},
+            {"article": "2612TP49", "color": "000003", "referencia": "2612TP49_000003", "familia": "TOP MUJER", "sexo": "MUJER", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
+            {"article": "2612TR06", "color": "000006", "referencia": "2612TR06_000006", "familia": "TRICOT MUJER", "sexo": "MUJER", "precio_actual": 22.99, "precio_rebaja": 19.99, "descuento": -0.13049151805132667},
+            {"article": "2612TR09", "color": "000323", "referencia": "2612TR09_000323", "familia": "TRICOT MUJER", "sexo": "MUJER", "precio_actual": 22.99, "precio_rebaja": 19.99, "descuento": -0.13049151805132667},
+            {"article": "2612TR24", "color": "000039", "referencia": "2612TR24_000039", "familia": "TRICOT MUJER", "sexo": "MUJER", "precio_actual": 25.99, "precio_rebaja": 22.99, "descuento": -0.11542901115813775},
+            {"article": "2612VS08", "color": "000003", "referencia": "2612VS08_000003", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
+            {"article": "2612VS08", "color": "000003", "referencia": "2612VS08_000003", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
+            {"article": "2612VS11", "color": "000323", "referencia": "2612VS11_000323", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 35.99, "precio_rebaja": 29.99, "descuento": -0.1667129758266186},
+            {"article": "2612VS17", "color": "000003", "referencia": "2612VS17_000003", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
+            {"article": "2612VS17", "color": "000003", "referencia": "2612VS17_000003", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
+            {"article": "2612VS33", "color": "000003", "referencia": "2612VS33_000003", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 29.99, "descuento": -0.2500625156289073},
+            {"article": "2612VS44", "color": "000003", "referencia": "2612VS44_000003", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 32.99, "descuento": -0.17504376094023505},
+            {"article": "2612VS44", "color": "000003", "referencia": "2612VS44_000003", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 39.99, "precio_rebaja": 29.99, "descuento": -0.2500625156289073},
+            {"article": "2612VS99", "color": "000003", "referencia": "2612VS99_000003", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 45.99, "precio_rebaja": 35.99, "descuento": -0.21743857360295715},
+            {"article": "2612VS99", "color": "000014", "referencia": "2612VS99_000014", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 45.99, "precio_rebaja": 39.99, "descuento": -0.1304631441617743},
+            {"article": "2612VS99", "color": "000014", "referencia": "2612VS99_000014", "familia": "VESTIDOS", "sexo": "MUJER", "precio_actual": 45.99, "precio_rebaja": 35.99, "descuento": -0.21743857360295715},
         ];
 
         function render() {
