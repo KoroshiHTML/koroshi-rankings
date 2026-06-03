@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midseason Sale V26 HOMBRE - Koroshi</title>
+    <title>Midseason Sale V26 HOMBRE (Updated 03/06) - Koroshi</title>
     <style>
         * {
             margin: 0;
@@ -276,43 +276,34 @@
 
         // Real data from REBAJAS_V26_06_05_2026_HOMBRE.xls
         const saleData = [
-            {"article": "2611XC00", "color": "000039", "referencia": "2611XC00_000039", "familia": "CALZADO HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
-            {"article": "2611XC04", "color": "000039", "referencia": "2611XC04_000039", "familia": "CALZADO HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 49.99, "descuento": -0.1666944490748458},
-            {"article": "2611XC04", "color": "000128", "referencia": "2611XC04_000128", "familia": "CALZADO HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 49.99, "descuento": -0.1666944490748458},
-            {"article": "2611MC31", "color": "000039", "referencia": "2611MC31_000039", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
-            {"article": "2611MC63", "color": "000001", "referencia": "2611MC63_000001", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 22.99, "precio_rebaja": 19.99, "descuento": -0.13049151805132667},
-            {"article": "2611MC81", "color": "000019", "referencia": "2611MC81_000019", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
-            {"article": "2611JA02", "color": "000062", "referencia": "2611JA02_000062", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
-            {"article": "2611JA07", "color": "000030", "referencia": "2611JA07_000030", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
-            {"article": "2611JA09", "color": "000062", "referencia": "2611JA09_000062", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
-            {"article": "2611JA09", "color": "000181", "referencia": "2611JA09_000181", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
-            {"article": "2611JA10", "color": "000003", "referencia": "2611JA10_000003", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
-            {"article": "2611JA11", "color": "000184", "referencia": "2611JA11_000184", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 59.99, "descuento": -0.14287755393627652},
-            {"article": "2611JA18", "color": "000003", "referencia": "2611JA18_000003", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 39.99, "descuento": -0.3333888981496916},
-            {"article": "2611JA18", "color": "000062", "referencia": "2611JA18_000062", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 39.99, "descuento": -0.3333888981496916},
-            {"article": "2611JA19", "color": "000039", "referencia": "2611JA19_000039", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 69.99, "precio_rebaja": 49.99, "descuento": -0.28575510787255315},
-            {"article": "2611JA41", "color": "000012", "referencia": "2611JA41_000012", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
-            {"article": "2611JA41", "color": "000021", "referencia": "2611JA41_000021", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
-            {"article": "2611JA41", "color": "000103", "referencia": "2611JA41_000103", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
-            {"article": "2611JA42", "color": "000003", "referencia": "2611JA42_000003", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
-            {"article": "2611JA49", "color": "000003", "referencia": "2611JA49_000003", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 49.99, "descuento": -0.1666944490748458},
-            {"article": "2611JA49", "color": "000130", "referencia": "2611JA49_000130", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 39.99, "descuento": -0.3333888981496916},
-            {"article": "2611JA99", "color": "000003", "referencia": "2611JA99_000003", "familia": "CHAQUETA HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
-            {"article": "2611PC24", "color": "000030", "referencia": "2611PC24_000030", "familia": "POLO MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
-            {"article": "2611PC24", "color": "000039", "referencia": "2611PC24_000039", "familia": "POLO MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
-            {"article": "2611PC66", "color": "000030", "referencia": "2611PC66_000030", "familia": "POLO MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 35.99, "precio_rebaja": 29.99, "descuento": -0.1667129758266186},
-            {"article": "2611SU07", "color": "000027", "referencia": "2611SU07_000027", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 29.99, "descuento": -0.2500625156289073},
-            {"article": "2611SU09", "color": "000030", "referencia": "2611SU09_000030", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
-            {"article": "2611SU09", "color": "000039", "referencia": "2611SU09_000039", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
-            {"article": "2611SU20", "color": "000014", "referencia": "2611SU20_000014", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
-            {"article": "2611SU26", "color": "000039", "referencia": "2611SU26_000039", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
-            {"article": "2611SU30", "color": "000039", "referencia": "2611SU30_000039", "familia": "SUDADERA HOMBRE", "sexo": "HOMBRE", "precio_actual": 45.99, "precio_rebaja": 19.99, "descuento": -0.5653402913676887},
-            {"article": "2611TR08", "color": "000039", "referencia": "2611TR08_000039", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 36.99, "precio_rebaja": 25.99, "descuento": -0.29737766964044343},
-            {"article": "2611TR13", "color": "000003", "referencia": "2611TR13_000003", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
-            {"article": "2611TR13", "color": "000019", "referencia": "2611TR13_000019", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 25.99, "descuento": -0.3500875218804702},
-            {"article": "2611TR24", "color": "000039", "referencia": "2611TR24_000039", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 36.99, "precio_rebaja": 25.99, "descuento": -0.29737766964044343},
-            {"article": "2611TR25", "color": "000039", "referencia": "2611TR25_000039", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 36.99, "precio_rebaja": 25.99, "descuento": -0.29737766964044343},
-            {"article": "2611TR26", "color": "000014", "referencia": "2611TR26_000014", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 19.99, "descuento": -0.5001250312578145}
+            {"article": "2611CC25", "color": "000006", "referencia": "2611CC25_000006", "familia": "CAMISA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 35.99, "precio_rebaja": 29.99, "descuento": -0.1667129758266186},
+            {"article": "2611CC37", "color": "000006", "referencia": "2611CC37_000006", "familia": "CAMISA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
+            {"article": "2611CC42", "color": "000006", "referencia": "2611CC42_000006", "familia": "CAMISA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 35.99, "precio_rebaja": 29.99, "descuento": -0.1667129758266186},
+            {"article": "2611CC43", "color": "000001", "referencia": "2611CC43_000001", "familia": "CAMISA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 35.99, "precio_rebaja": 29.99, "descuento": -0.1667129758266186},
+            {"article": "2611CC56", "color": "000139", "referencia": "2611CC56_000139", "familia": "CAMISA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 35.99, "precio_rebaja": 29.99, "descuento": -0.1667129758266186},
+            {"article": "2611CC61", "color": "000014", "referencia": "2611CC61_000014", "familia": "CAMISA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
+            {"article": "2611CC64", "color": "000014", "referencia": "2611CC64_000014", "familia": "CAMISA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
+            {"article": "2611MC09", "color": "000123", "referencia": "2611MC09_000123", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
+            {"article": "2611MC22", "color": "000039", "referencia": "2611MC22_000039", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
+            {"article": "2611MC34", "color": "000003", "referencia": "2611MC34_000003", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 25.99, "precio_rebaja": 22.99, "descuento": -0.11542901115813775},
+            {"article": "2611MC34", "color": "000039", "referencia": "2611MC34_000039", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
+            {"article": "2611MC74", "color": "000003", "referencia": "2611MC74_000003", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 22.99, "precio_rebaja": 17.99, "descuento": -0.2174858634188778},
+            {"article": "2611MC79", "color": "000003", "referencia": "2611MC79_000003", "familia": "CAMISETA MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 25.99, "precio_rebaja": 19.99, "descuento": -0.2308580223162755},
+            {"article": "2611PC25", "color": "000014", "referencia": "2611PC25_000014", "familia": "POLO MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
+            {"article": "2611PC28", "color": "000039", "referencia": "2611PC28_000039", "familia": "POLO MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 29.99, "precio_rebaja": 25.99, "descuento": -0.13337779259753252},
+            {"article": "2611PC66", "color": "000030", "referencia": "2611PC66_000030", "familia": "POLO MANGA CORTA HOMBRE", "sexo": "HOMBRE", "precio_actual": 29.99, "precio_rebaja": 19.99, "descuento": -0.33344448149383127},
+            {"article": "2611PS46", "color": "000306", "referencia": "2611PS46_000306", "familia": "PANTALON CORTO HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 35.99, "descuento": -0.10002500625156288},
+            {"article": "2611PT93", "color": "000014", "referencia": "2611PT93_000014", "familia": "PANTALON LARGO HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 32.99, "descuento": -0.17504376094023505},
+            {"article": "2611TR13", "color": "000003", "referencia": "2611TR13_000003", "familia": "TRICOT HOMBRE", "sexo": "HOMBRE", "precio_actual": 25.99, "precio_rebaja": 22.99, "descuento": -0.11542901115813775},
+            {"article": "2611XC00", "color": "000039", "referencia": "2611XC00_000039", "familia": "CALZADO HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 29.99, "descuento": -0.2500625156289073},
+            {"article": "2611XC04", "color": "000039", "referencia": "2611XC04_000039", "familia": "CALZADO HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 29.99, "descuento": -0.2500625156289073},
+            {"article": "2611XC04", "color": "000128", "referencia": "2611XC04_000128", "familia": "CALZADO HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 49.99, "descuento": 0.0},
+            {"article": "2611ZA05", "color": "000003", "referencia": "2611ZA05_000003", "familia": "ACCESORIOS HOMBRE", "sexo": "HOMBRE", "precio_actual": 59.99, "precio_rebaja": 49.99, "descuento": -0.1666944490748458},
+            {"article": "2611ZA08", "color": "000003", "referencia": "2611ZA08_000003", "familia": "ACCESORIOS HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 29.99, "descuento": -0.2500625156289073},
+            {"article": "2611ZA08", "color": "000006", "referencia": "2611ZA08_000006", "familia": "ACCESORIOS HOMBRE", "sexo": "HOMBRE", "precio_actual": 39.99, "precio_rebaja": 29.99, "descuento": -0.2500625156289073},
+            {"article": "2611ZA10", "color": "000003", "referencia": "2611ZA10_000003", "familia": "ACCESORIOS HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
+            {"article": "2611ZA10", "color": "000014", "referencia": "2611ZA10_000014", "familia": "ACCESORIOS HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
+            {"article": "2611ZA10", "color": "000147", "referencia": "2611ZA10_000147", "familia": "ACCESORIOS HOMBRE", "sexo": "HOMBRE", "precio_actual": 49.99, "precio_rebaja": 39.99, "descuento": -0.20004000800160032},
         ];
 
         function render() {
