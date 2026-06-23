@@ -1180,7 +1180,7 @@
 
             let filteredItems = items;
             if (tabName !== 'all') {
-                filteredItems = items.filter(item => item.sexo.toLowerCase() === tabName.toUpperCase());
+                filteredItems = items.filter(item => item.sexo.toUpperCase() === tabName.toUpperCase());
             }
 
             // Calculate stats
