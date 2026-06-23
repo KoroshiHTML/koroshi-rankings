@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Koroshi Sales V26 - Complete Dashboard</title>
+<title>Koroshi Rebajas V26 - Panel Completo</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #fff; padding: 20px; }
@@ -56,8 +56,8 @@ button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.
 <body>
 <div class="header">
 <div>
-<h1>🏷️ Koroshi Sales V26</h1>
-<p>Complete catalogue with reductions (Updated: 25/06/2026) — 715 items</p>
+<h1>🏷️ Koroshi Rebajas V26</h1>
+<p>Catálogo completo con rebajas (Actualizado: 25/06/2026) — 715 artículos</p>
 </div>
 <div class="header-buttons">
 <button id="download-btn">📥 Excel</button>
@@ -68,14 +68,14 @@ button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.
 <div class="tabs" id="tabs"></div>
 
 <div class="legend">
-<span><span class="swatch sw-yellow"></span> Discount ≥ 50%</span>
-<span><span class="swatch sw-orange"></span> Discount ≥ 60%</span>
+<span><span class="swatch sw-yellow"></span> Descuento ≥ 50%</span>
+<span><span class="swatch sw-orange"></span> Descuento ≥ 60%</span>
 </div>
 
 <div class="stats">
-<div class="stat-box"><div class="stat-label">Items</div><div class="stat-value" id="s-count">0</div></div>
-<div class="stat-box"><div class="stat-label">Avg Discount</div><div class="stat-value" id="s-avg">0%</div></div>
-<div class="stat-box"><div class="stat-label">50%+ (incl 60%+)</div><div class="stat-value" id="s-50">0</div></div>
+<div class="stat-box"><div class="stat-label">Artículos</div><div class="stat-value" id="s-count">0</div></div>
+<div class="stat-box"><div class="stat-label">Descuento Medio</div><div class="stat-value" id="s-avg">0%</div></div>
+<div class="stat-box"><div class="stat-label">50%+ (incl. 60%+)</div><div class="stat-value" id="s-50">0</div></div>
 <div class="stat-box"><div class="stat-label">60%+</div><div class="stat-value" id="s-60">0</div></div>
 </div>
 
@@ -802,11 +802,11 @@ const saleData = [
 ];
 
 const TABS = [
-  { key: 'ALL', label: '👥 ALL' },
+  { key: 'ALL', label: '👥 TODOS' },
   { key: 'HOMBRE', label: '👨 HOMBRE' },
   { key: 'MUJER', label: '👩 MUJER' },
-  { key: 'BOY', label: '👦 BOY' },
-  { key: 'GIRL', label: '👧 GIRL' },
+  { key: 'BOY', label: '👦 NIÑO' },
+  { key: 'GIRL', label: '👧 NIÑA' },
   { key: 'UNISEX', label: '♻️ UNISEX' }
 ];
 
@@ -873,18 +873,18 @@ function exportExcel() {
   const ws = XLSX.utils.json_to_sheet(getFiltered(currentTab));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, currentTab);
-  XLSX.writeFile(wb, 'Koroshi_Sales_25_06_' + currentTab + '.xlsx');
+  XLSX.writeFile(wb, 'Koroshi_Rebajas_25_06_' + currentTab + '.xlsx');
 }
 
 function exportCSV() {
   const data = getFiltered(currentTab);
-  const csv = [['Article','Color','Referencia','Familia','Sexo','PVP','Rebaja','Descuento%'].join(',')]
+  const csv = [['Articulo','Color','Referencia','Familia','Sexo','PVP','Rebaja','Descuento%'].join(',')]
     .concat(data.map(i => [i.article,i.color,i.referencia,i.familia,i.sexo,i.precio_actual,i.precio_rebaja,i.discount_percent].join(',')))
     .join('\n');
   const blob = new Blob([csv], {type:'text/csv'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'Koroshi_Sales_25_06_' + currentTab + '.csv';
+  a.download = 'Koroshi_Rebajas_25_06_' + currentTab + '.csv';
   a.click();
 }
 
