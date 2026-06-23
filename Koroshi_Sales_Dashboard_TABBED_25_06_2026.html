@@ -81,7 +81,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.
 
 <div class="grid" id="grid"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const saleData = [
             {"article": "2614CC01", "color": "000323", "referencia": "2614CC01_000323", "familia": "CAMISA MANGA CORTA BOY", "sexo": "BOY", "precio_actual": 19.99, "precio_rebaja": 12.99, "discount_percent": 35.0},
@@ -870,10 +870,40 @@ function render() {
 }
 
 function exportExcel() {
-  const ws = XLSX.utils.json_to_sheet(getFiltered(currentTab));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, currentTab);
-  XLSX.writeFile(wb, 'Koroshi_Rebajas_25_06_' + currentTab + '.xlsx');
+  const data = getFiltered(currentTab);
+  const cols = ['article','color','referencia','familia','sexo','precio_actual','precio_rebaja','discount_percent'];
+  const headers = ['Articulo','Color','Referencia','Familia','Sexo','PVP','Rebaja','Descuento%'];
+  // Preferred path: real XLSX via SheetJS if it loaded
+  if (typeof XLSX !== 'undefined' && XLSX.utils && XLSX.writeFile) {
+    try {
+      const rows = data.map(i => {
+        const o = {};
+        cols.forEach((c, idx) => o[headers[idx]] = i[c]);
+        return o;
+      });
+      const ws = XLSX.utils.json_to_sheet(rows, { header: headers });
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, currentTab);
+      XLSX.writeFile(wb, 'Koroshi_Rebajas_25_06_' + currentTab + '.xlsx');
+      return;
+    } catch (e) {
+      console.error('XLSX export failed, using fallback:', e);
+    }
+  }
+  // Fallback: build an .xls file Excel opens natively (HTML table format)
+  let table = '<table border="1"><tr>' + headers.map(h => '<th>' + h + '</th>').join('') + '</tr>';
+  data.forEach(i => {
+    table += '<tr>' + cols.map(c => '<td>' + (i[c] === undefined ? '' : i[c]) + '</td>').join('') + '</tr>';
+  });
+  table += '</table>';
+  const html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>' + table + '</body></html>';
+  const blob = new Blob(['\ufeff', html], { type: 'application/vnd.ms-excel' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Koroshi_Rebajas_25_06_' + currentTab + '.xls';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function exportCSV() {
