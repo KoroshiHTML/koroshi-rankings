@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koroshi V26 - Visual Merchandising (Sin Rebaja)</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #faf9f7; color: #1a1a1a; padding: 20px; }
+.header { max-width: 1600px; margin: 0 auto 20px; border-left: 5px solid #1a1a1a; padding-left: 20px; padding-bottom: 18px; border-bottom: 1px solid #e5e2dc; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+.header > div:first-child { flex: 1; min-width: 260px; }
+.header h1 { font-size: 30px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.5px; }
+.header p { color: #888; font-size: 14px; }
+.header-buttons { display: flex; gap: 10px; }
+button { padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s ease; white-space: nowrap; }
+button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+#download-btn { background: #1a1a1a; color: #fff; }
+#download-csv-btn { background: #6b7c5a; color: #fff; }
+.controls { max-width: 1600px; margin: 0 auto 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+#search { flex: 1; min-width: 200px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: #fff; }
+.tabs { max-width: 1600px; margin: 0 auto 16px; display: flex; gap: 6px; flex-wrap: wrap; }
+.tab-btn { background: #fff; border: 1px solid #ddd; color: #666; }
+.tab-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.stats { max-width: 1600px; margin: 0 auto 24px; display: flex; gap: 15px; flex-wrap: wrap; }
+.stat-box { background: #fff; border: 1px solid #e5e2dc; border-radius: 8px; padding: 14px 22px; flex: 1; min-width: 130px; text-align: center; }
+.stat-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 24px; font-weight: 700; color: #1a1a1a; margin-top: 4px; }
+#results { max-width: 1600px; margin: 0 auto; }
+.family-section { margin-bottom: 36px; }
+.family-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; padding: 10px 0; margin-bottom: 14px; border-bottom: 2px solid #1a1a1a; position: sticky; top: 0; background: #faf9f7; z-index: 5; }
+.family-name { font-size: 17px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.family-meta { font-size: 12px; color: #999; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
+.card { background: #fff; border: 1px solid #e5e2dc; border-radius: 8px; overflow: hidden; transition: all 0.25s ease; display: flex; flex-direction: column; }
+.card:hover { border-color: #1a1a1a; transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.10); }
+.image-wrapper { position: relative; width: 100%; padding-bottom: 125%; background: #f2f0ec; overflow: hidden; }
+.image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.placeholder { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #bbb; z-index: 0; }
+.info { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.familia { font-size: 10px; text-transform: uppercase; color: #6b7c5a; font-weight: 700; letter-spacing: 0.5px; }
+.article { font-size: 13px; font-weight: 700; }
+.color { font-size: 11px; color: #999; }
+.sexo { font-size: 9px; display: inline-block; background: #f2f0ec; color: #666; padding: 2px 7px; border-radius: 3px; width: fit-content; text-transform: uppercase; letter-spacing: 0.3px; }
+.precio { font-size: 17px; font-weight: 700; color: #1a1a1a; margin-top: 4px; border-top: 1px solid #eee; padding-top: 8px; }
+.loading { text-align: center; padding: 50px; color: #999; }
+@media (max-width: 640px) { .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; } .header h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+<div class="header">
+<div>
+<h1>🛍️ Koroshi V26 — Visual Merchandising</h1>
+<p>Artículos a precio completo (sin rebaja) · Temporada V26 · 107 artículos</p>
+</div>
+<div class="header-buttons">
+<button id="download-btn">📥 Excel</button>
+<button id="download-csv-btn">📄 CSV</button>
+</div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="controls">
+<input type="text" id="search" placeholder="🔍 Buscar por artículo, familia o referencia...">
+</div>
+
+<div class="stats">
+<div class="stat-box"><div class="stat-label">Artículos</div><div class="stat-value" id="s-count">0</div></div>
+<div class="stat-box"><div class="stat-label">Familias</div><div class="stat-value" id="s-fam">0</div></div>
+<div class="stat-box"><div class="stat-label">Precio Mínimo</div><div class="stat-value" id="s-min">—</div></div>
+<div class="stat-box"><div class="stat-label">Precio Máximo</div><div class="stat-value" id="s-max">—</div></div>
+</div>
+
+<div id="results"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const vmData = [
+            {"temporada": "V26", "sexo": "BOY", "familia": "CAMISETAS SIN MANGAS BOY", "article": "2614MS03", "color": "000027", "referencia": "2614MS03_000027", "precio": 9.99},
+            {"temporada": "V26", "sexo": "BOY", "familia": "CAMISETAS SIN MANGAS BOY", "article": "2614MS04", "color": "000006", "referencia": "2614MS04_000006", "precio": 12.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "ACCESORIOS HOMBRE", "article": "2611ZA07", "color": "000003", "referencia": "2611ZA07_000003", "precio": 25.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "ACCESORIOS HOMBRE", "article": "2611ZA11", "color": "000003", "referencia": "2611ZA11_000003", "precio": 29.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CALCETINES HOMBRE", "article": "2611ZT06", "color": "000323", "referencia": "2611ZT06_000323", "precio": 9.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CALCETINES HOMBRE", "article": "2611ZT01", "color": "000323", "referencia": "2611ZT01_000323", "precio": 9.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CALCETINES HOMBRE", "article": "2611ZT07", "color": "000323", "referencia": "2611ZT07_000323", "precio": 9.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CALCETINES HOMBRE", "article": "2611ZT03", "color": "000323", "referencia": "2611ZT03_000323", "precio": 17.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CALCETINES HOMBRE", "article": "2611ZT05", "color": "000323", "referencia": "2611ZT05_000323", "precio": 19.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CALCETINES HOMBRE", "article": "2611ZT04", "color": "000323", "referencia": "2611ZT04_000323", "precio": 19.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISA MANGA CORTA HOMBRE", "article": "2611CC36", "color": "000014", "referencia": "2611CC36_000014", "precio": 29.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISA MANGA CORTA HOMBRE", "article": "2611CC49", "color": "000003", "referencia": "2611CC49_000003", "precio": 29.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISA MANGA CORTA HOMBRE", "article": "2611CC59", "color": "000030", "referencia": "2611CC59_000030", "precio": 29.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISA MANGA CORTA HOMBRE", "article": "2611CC65", "color": "000016", "referencia": "2611CC65_000016", "precio": 35.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA MANGA CORTA HOMBRE", "article": "2611MC00", "color": "000001", "referencia": "2611MC00_000001", "precio": 19.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA MANGA CORTA HOMBRE", "article": "2611MC00", "color": "000003", "referencia": "2611MC00_000003", "precio": 19.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA MANGA CORTA HOMBRE", "article": "2611MC51", "color": "000030", "referencia": "2611MC51_000030", "precio": 22.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA MANGA CORTA HOMBRE", "article": "2611MC43", "color": "000001", "referencia": "2611MC43_000001", "precio": 22.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA MANGA CORTA HOMBRE", "article": "2611MC52", "color": "000148", "referencia": "2611MC52_000148", "precio": 22.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA MANGA CORTA HOMBRE", "article": "2611MC61", "color": "000030", "referencia": "2611MC61_000030", "precio": 25.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA MANGA CORTA HOMBRE", "article": "2611MC36", "color": "000001", "referencia": "2611MC36_000001", "precio": 29.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA SIN MANGAS HOMBRE", "article": "2611MS02", "color": "000015", "referencia": "2611MS02_000015", "precio": 19.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA SIN MANGAS HOMBRE", "article": "2611MS19", "color": "000001", "referencia": "2611MS19_000001", "precio": 19.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA SIN MANGAS HOMBRE", "article": "2611MS38", "color": "000003", "referencia": "2611MS38_000003", "precio": 22.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA SIN MANGAS HOMBRE", "article": "2611MS52", "color": "000003", "referencia": "2611MS52_000003", "precio": 22.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CAMISETA SIN MANGAS HOMBRE", "article": "2611MS46", "color": "000003", "referencia": "2611MS46_000003", "precio": 22.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CHAQUETA HOMBRE", "article": "2611JA09", "color": "000003", "referencia": "2611JA09_000003", "precio": 69.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CHAQUETA HOMBRE", "article": "2611JA06", "color": "000019", "referencia": "2611JA06_000019", "precio": 69.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CHAQUETA HOMBRE", "article": "2611JA04", "color": "000158", "referencia": "2611JA04_000158", "precio": 69.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CINTURONES HOMBRE", "article": "2611ZC07", "color": "000003", "referencia": "2611ZC07_000003", "precio": 15.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CINTURONES HOMBRE", "article": "2611ZC08", "color": "000003", "referencia": "2611ZC08_000003", "precio": 15.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CINTURONES HOMBRE", "article": "2611ZC08", "color": "000019", "referencia": "2611ZC08_000019", "precio": 15.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CINTURONES HOMBRE", "article": "2611ZC05", "color": "000088", "referencia": "2611ZC05_000088", "precio": 19.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CINTURONES HOMBRE", "article": "2611ZC01", "color": "000003", "referencia": "2611ZC01_000003", "precio": 19.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CINTURONES HOMBRE", "article": "2611ZC09", "color": "000003", "referencia": "2611ZC09_000003", "precio": 19.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "CINTURONES HOMBRE", "article": "2611ZC02", "color": "000088", "referencia": "2611ZC02_000088", "precio": 19.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT29", "color": "000302", "referencia": "2611PT29_000302", "precio": 39.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT86", "color": "000002", "referencia": "2611PT86_000002", "precio": 39.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT87", "color": "000003", "referencia": "2611PT87_000003", "precio": 39.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT87", "color": "000062", "referencia": "2611PT87_000062", "precio": 39.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT85", "color": "000306", "referencia": "2611PT85_000306", "precio": 39.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT86", "color": "000010", "referencia": "2611PT86_000010", "precio": 39.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT16", "color": "000030", "referencia": "2611PT16_000030", "precio": 39.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT85", "color": "000301", "referencia": "2611PT85_000301", "precio": 39.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT87", "color": "000014", "referencia": "2611PT87_000014", "precio": 39.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT01", "color": "000061", "referencia": "2611PT01_000061", "precio": 39.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT11", "color": "000300", "referencia": "2611PT11_000300", "precio": 45.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT32", "color": "000302", "referencia": "2611PT32_000302", "precio": 45.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT13", "color": "000301", "referencia": "2611PT13_000301", "precio": 45.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT12", "color": "000307", "referencia": "2611PT12_000307", "precio": 45.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT33", "color": "000300", "referencia": "2611PT33_000300", "precio": 45.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT34", "color": "000302", "referencia": "2611PT34_000302", "precio": 45.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT28", "color": "000306", "referencia": "2611PT28_000306", "precio": 45.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT30", "color": "000300", "referencia": "2611PT30_000300", "precio": 45.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT31", "color": "000301", "referencia": "2611PT31_000301", "precio": 45.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT04", "color": "000130", "referencia": "2611PT04_000130", "precio": 49.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT04", "color": "000003", "referencia": "2611PT04_000003", "precio": 49.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT15", "color": "000302", "referencia": "2611PT15_000302", "precio": 49.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT20", "color": "000300", "referencia": "2611PT20_000300", "precio": 49.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT49", "color": "000003", "referencia": "2611PT49_000003", "precio": 49.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT38", "color": "000306", "referencia": "2611PT38_000306", "precio": 49.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT62", "color": "000302", "referencia": "2611PT62_000302", "precio": 49.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT63", "color": "000300", "referencia": "2611PT63_000300", "precio": 49.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT60", "color": "000010", "referencia": "2611PT60_000010", "precio": 49.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT61", "color": "000306", "referencia": "2611PT61_000306", "precio": 49.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT37", "color": "000300", "referencia": "2611PT37_000300", "precio": 59.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT36", "color": "000301", "referencia": "2611PT36_000301", "precio": 59.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "PANTALON LARGO HOMBRE", "article": "2611PT41", "color": "000300", "referencia": "2611PT41_000300", "precio": 59.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "ROPA INTERIOR HOMBRE", "article": "2611UN05", "color": "000323", "referencia": "2611UN05_000323", "precio": 22.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "ROPA INTERIOR HOMBRE", "article": "2611UN06", "color": "000323", "referencia": "2611UN06_000323", "precio": 22.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "ROPA INTERIOR HOMBRE", "article": "2611UN03", "color": "000323", "referencia": "2611UN03_000323", "precio": 29.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "ROPA INTERIOR HOMBRE", "article": "2611UN10", "color": "000323", "referencia": "2611UN10_000323", "precio": 32.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "ROPA INTERIOR HOMBRE", "article": "2611UN01", "color": "000323", "referencia": "2611UN01_000323", "precio": 35.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "ROPA INTERIOR HOMBRE", "article": "2611UN00", "color": "000003", "referencia": "2611UN00_000003", "precio": 35.99},
+            {"temporada": "V26", "sexo": "HOMBRE", "familia": "ROPA INTERIOR HOMBRE", "article": "2611UN02", "color": "000323", "referencia": "2611UN02_000323", "precio": 35.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "BLUSAS", "article": "2612BL37", "color": "000323", "referencia": "2612BL37_000323", "precio": 25.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "BLUSAS", "article": "2612BL78", "color": "000016", "referencia": "2612BL78_000016", "precio": 29.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "BLUSAS", "article": "2612BL78", "color": "000015", "referencia": "2612BL78_000015", "precio": 29.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "PANTALON LARGO MUJER", "article": "2612PT33", "color": "000302", "referencia": "2612PT33_000302", "precio": 39.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "TOP MUJER", "article": "2612TP11", "color": "000003", "referencia": "2612TP11_000003", "precio": 19.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "TOP MUJER", "article": "2612TP29", "color": "000039", "referencia": "2612TP29_000039", "precio": 19.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "TOP MUJER", "article": "2612TP11", "color": "000015", "referencia": "2612TP11_000015", "precio": 19.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "TOP MUJER", "article": "2612TP29", "color": "000015", "referencia": "2612TP29_000015", "precio": 19.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "TOP MUJER", "article": "2612TP74", "color": "000030", "referencia": "2612TP74_000030", "precio": 22.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "TOP MUJER", "article": "2612TP38", "color": "000001", "referencia": "2612TP38_000001", "precio": 22.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "TOP MUJER", "article": "2612TP78", "color": "000001", "referencia": "2612TP78_000001", "precio": 25.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "TOP MUJER", "article": "2612TP12", "color": "000001", "referencia": "2612TP12_000001", "precio": 25.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "TOP MUJER", "article": "2612TP21", "color": "000001", "referencia": "2612TP21_000001", "precio": 25.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "VESTIDOS", "article": "2612VS13", "color": "000003", "referencia": "2612VS13_000003", "precio": 39.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "VESTIDOS", "article": "2612VS36", "color": "000003", "referencia": "2612VS36_000003", "precio": 39.99},
+            {"temporada": "V26", "sexo": "MUJER", "familia": "VESTIDOS", "article": "2612VS10", "color": "000003", "referencia": "2612VS10_000003", "precio": 39.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613HA07", "color": "000039", "referencia": "2613HA07_000039", "precio": 19.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613HA03", "color": "000003", "referencia": "2613HA03_000003", "precio": 19.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613HA06", "color": "000010", "referencia": "2613HA06_000010", "precio": 19.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613HA05", "color": "000030", "referencia": "2613HA05_000030", "precio": 19.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613HA04", "color": "000003", "referencia": "2613HA04_000003", "precio": 19.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613HA02", "color": "000003", "referencia": "2613HA02_000003", "precio": 19.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613SG01", "color": "000005", "referencia": "2613SG01_000005", "precio": 36.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613SG22", "color": "000005", "referencia": "2613SG22_000005", "precio": 36.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613SG10", "color": "000010", "referencia": "2613SG10_000010", "precio": 36.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613SG06", "color": "000003", "referencia": "2613SG06_000003", "precio": 36.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613SG18", "color": "000019", "referencia": "2613SG18_000019", "precio": 36.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613SG17", "color": "000335", "referencia": "2613SG17_000335", "precio": 39.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613SG16", "color": "000019", "referencia": "2613SG16_000019", "precio": 39.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613SG19", "color": "000003", "referencia": "2613SG19_000003", "precio": 39.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613SG20", "color": "000003", "referencia": "2613SG20_000003", "precio": 45.99},
+            {"temporada": "V26", "sexo": "UNISEX", "familia": "COMPLEMENTOS UNISEX", "article": "2613SG21", "color": "000043", "referencia": "2613SG21_000043", "precio": 49.99}
+];
+
+const TABS = [
+  { key: 'ALL', label: '👥 TODOS' },
+  { key: 'HOMBRE', label: '👨 HOMBRE' },
+  { key: 'MUJER', label: '👩 MUJER' },
+  { key: 'BOY', label: '👦 NIÑO' },
+  { key: 'UNISEX', label: '♻️ UNISEX' }
+];
+
+let currentTab = 'ALL';
+let searchTerm = '';
+
+function getFiltered() {
+  let data = currentTab === 'ALL' ? vmData : vmData.filter(i => i.sexo === currentTab);
+  if (searchTerm) {
+    const t = searchTerm.toLowerCase();
+    data = data.filter(i =>
+      i.article.toLowerCase().includes(t) ||
+      i.familia.toLowerCase().includes(t) ||
+      i.referencia.toLowerCase().includes(t)
+    );
+  }
+  return data;
+}
+
+function groupByFamily(items) {
+  const groups = {};
+  items.forEach(i => { (groups[i.familia] = groups[i.familia] || []).push(i); });
+  // within family, sort by lowest price first
+  Object.keys(groups).forEach(f => groups[f].sort((a,b) => a.precio - b.precio));
+  return Object.keys(groups).sort().map(f => ({ familia: f, items: groups[f] }));
+}
+
+function renderTabs() {
+  const el = document.getElementById('tabs');
+  el.innerHTML = '';
+  TABS.forEach(t => {
+    const n = (t.key === 'ALL' ? vmData : vmData.filter(i => i.sexo === t.key)).length;
+    if (t.key !== 'ALL' && n === 0) return;
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (t.key === currentTab ? ' active' : '');
+    btn.textContent = t.label + ' (' + n + ')';
+    btn.onclick = () => { currentTab = t.key; render(); };
+    el.appendChild(btn);
+  });
+}
+
+function cardHTML(item) {
+  return `
+    <div class="card">
+      <div class="image-wrapper">
+        <div class="placeholder">Sin imagen</div>
+        <img src="https://koroshishop.com/cdn/shop/files/${item.referencia}_1.jpg" alt="${item.referencia}" class="image" onerror="this.style.display='none'">
+      </div>
+      <div class="info">
+        <div class="familia">${item.familia}</div>
+        <div class="article">${item.article}</div>
+        <div class="color">${item.referencia}</div>
+        <div class="sexo">${item.sexo}</div>
+        <div class="precio">€${item.precio.toFixed(2)}</div>
+      </div>
+    </div>`;
+}
+
+function render() {
+  renderTabs();
+  const data = getFiltered();
+
+  document.getElementById('s-count').textContent = data.length;
+  const fams = new Set(data.map(i => i.familia));
+  document.getElementById('s-fam').textContent = fams.size;
+  if (data.length) {
+    document.getElementById('s-min').textContent = '€' + Math.min(...data.map(i=>i.precio)).toFixed(2);
+    document.getElementById('s-max').textContent = '€' + Math.max(...data.map(i=>i.precio)).toFixed(2);
+  } else {
+    document.getElementById('s-min').textContent = '—';
+    document.getElementById('s-max').textContent = '—';
+  }
+
+  const groups = groupByFamily(data);
+  let html = '';
+  groups.forEach(g => {
+    const minP = Math.min(...g.items.map(i=>i.precio));
+    const maxP = Math.max(...g.items.map(i=>i.precio));
+    const rango = minP === maxP ? `€${minP.toFixed(2)}` : `€${minP.toFixed(2)} – €${maxP.toFixed(2)}`;
+    html += `
+      <div class="family-section">
+        <div class="family-header">
+          <span class="family-name">${g.familia}</span>
+          <span class="family-meta">${g.items.length} art. · ${rango}</span>
+        </div>
+        <div class="grid">${g.items.map(cardHTML).join('')}</div>
+      </div>`;
+  });
+  document.getElementById('results').innerHTML = html || '<div class="loading">Sin artículos que coincidan con la búsqueda</div>';
+}
+
+function exportExcel() {
+  const data = getFiltered();
+  const cols = ['temporada','sexo','familia','article','color','referencia','precio'];
+  const headers = ['Temporada','Sexo','Familia','Articulo','Color','Referencia','Precio'];
+  if (typeof XLSX !== 'undefined' && XLSX.utils && XLSX.writeFile) {
+    try {
+      const rows = data.map(i => { const o={}; cols.forEach((c,idx)=>o[headers[idx]]=i[c]); return o; });
+      const ws = XLSX.utils.json_to_sheet(rows, { header: headers });
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, currentTab);
+      XLSX.writeFile(wb, 'Koroshi_VM_V26_' + currentTab + '.xlsx');
+      return;
+    } catch (e) { console.error('XLSX fallo, usando alternativa:', e); }
+  }
+  let table = '<table border="1"><tr>' + headers.map(h=>'<th>'+h+'</th>').join('') + '</tr>';
+  data.forEach(i => { table += '<tr>' + cols.map(c=>'<td>'+(i[c]===undefined?'':i[c])+'</td>').join('') + '</tr>'; });
+  table += '</table>';
+  const out = '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>'+table+'</body></html>';
+  const blob = new Blob(['\ufeff', out], { type: 'application/vnd.ms-excel' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Koroshi_VM_V26_' + currentTab + '.xls';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function exportCSV() {
+  const data = getFiltered();
+  const csv = [['Temporada','Sexo','Familia','Articulo','Color','Referencia','Precio'].join(',')]
+    .concat(data.map(i => [i.temporada,i.sexo,i.familia,i.article,i.color,i.referencia,i.precio].join(',')))
+    .join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Koroshi_VM_V26_' + currentTab + '.csv';
+  a.click();
+}
+
+document.getElementById('download-btn').addEventListener('click', exportExcel);
+document.getElementById('download-csv-btn').addEventListener('click', exportCSV);
+document.getElementById('search').addEventListener('input', e => { searchTerm = e.target.value; render(); });
+window.addEventListener('load', render);
+</script>
+</body>
+</html>
