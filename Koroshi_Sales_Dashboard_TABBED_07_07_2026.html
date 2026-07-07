@@ -557,6 +557,7 @@ const saleData = [
 const TABS = [
   { key: 'ALL', label: '👥 TODOS' },
   { key: 'REBAJAS50', label: '🔥 REBAJAS 50%+' },
+  { key: 'REBAJAS60', label: '🔥 REBAJAS 60%+' },
   { key: 'HOMBRE', label: '👨 HOMBRE' },
   { key: 'MUJER', label: '👩 MUJER' },
   { key: 'BOY', label: '👦 NIÑO' },
@@ -569,6 +570,7 @@ let currentTab = 'ALL';
 function getFiltered(tab) {
   if (tab === 'ALL') return saleData;
   if (tab === 'REBAJAS50') return saleData.filter(i => i.discount_percent >= 50);
+  if (tab === 'REBAJAS60') return saleData.filter(i => i.discount_percent >= 60);
   return saleData.filter(i => i.sexo === tab);
 }
 
