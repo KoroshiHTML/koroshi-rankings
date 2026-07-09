@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allocation Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, sans-serif; background: #0f0f1e; color: #eee; padding: 20px; }
+        .container { max-width: 1600px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; position: relative; padding: 20px 0; }
+        h1 { color: #00d4ff; font-size: 2em; margin-bottom: 5px; }
+        header > div { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 12px; z-index: 50; }
+
+        .file-uploads { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 30px; }
+        .upload-box { background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 4px; padding: 12px; }
+        .upload-label { color: #00d4ff; font-weight: 600; font-size: 0.8em; margin-bottom: 6px; display: block; }
+        .file-input { width: 100%; padding: 6px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 3px; color: #eee; font-size: 0.75em; }
+        .status { margin-top: 6px; font-size: 0.7em; color: #888; }
+        .status.ok { color: #4caf50; }
+
+        .main { display: grid; grid-template-columns: 180px 1fr; gap: 15px; min-height: calc(100vh - 250px); }
+
+        .sidebar { background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 4px; padding: 12px; overflow-y: auto; }
+        .sidebar-title { color: #00d4ff; font-weight: 700; margin-bottom: 10px; font-size: 0.8em; text-transform: uppercase; }
+        .family-group { margin-bottom: 15px; }
+        .family-subgroup { margin-left: 8px; margin-bottom: 8px; }
+        .family-item { padding: 6px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(0, 212, 255, 0.1); border-radius: 2px; cursor: pointer; font-size: 0.7em; margin-bottom: 3px; transition: all 0.3s; }
+        .family-item:hover, .family-item.active { background: rgba(0, 212, 255, 0.2); border-color: #00d4ff; color: #00d4ff; }
+        .sexo-label { font-size: 0.65em; color: #00d4ff; font-weight: 700; margin-bottom: 4px; }
+
+        .center-content { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+
+        .mc-header { background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 4px; padding: 15px; display: grid; grid-template-columns: 120px 120px 1fr; gap: 15px; align-items: start; }
+        .mc-image { width: 120px; height: 120px; background: rgba(0, 0, 0, 0.3); border-radius: 3px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .mc-image img { width: 100%; height: 100%; object-fit: contain; }
+        .mc-image-label { font-size: 0.65em; color: #888; text-align: center; margin-top: 4px; }
+        .mc-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .mc-detail-item { }
+        .mc-detail-label { color: #888; font-size: 0.75em; }
+        .mc-detail-value { color: #00d4ff; font-weight: 600; font-size: 1em; }
+
+        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .item-card { background: rgba(0, 0, 0, 0.3); border: 2px solid rgba(0, 212, 255, 0.1); border-radius: 3px; padding: 6px; cursor: pointer; text-align: center; font-size: 0.65em; transition: all 0.3s; }
+        .item-card:hover { border-color: rgba(0, 212, 255, 0.3); }
+        .item-card.selected { border-color: #00d4ff; background: rgba(0, 212, 255, 0.2); box-shadow: 0 0 8px rgba(0, 212, 255, 0.3); }
+        .item-card.pareto { border-color: #FFD700; }
+        .item-img { width: 100%; height: 80px; background: rgba(0, 0, 0, 0.5); border-radius: 2px; margin-bottom: 4px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
+        .item-img img { width: 100%; height: 100%; object-fit: contain; }
+        .item-counter { position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.75); color: #00d4ff; padding: 2px 4px; border-radius: 2px; font-size: 0.55em; font-weight: 600; line-height: 1.3; text-align: right; }
+        .item-star { color: #FFD700; font-size: 0.6em; }
+
+        .clusters-section { background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 4px; padding: 12px; }
+        .cluster-group { margin-bottom: 12px; }
+        .cluster-group-title { color: #00d4ff; font-weight: 700; font-size: 0.7em; text-transform: uppercase; margin-bottom: 6px; }
+        .cluster-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+        .cluster-btn { padding: 4px 8px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #00d4ff; cursor: pointer; font-size: 0.65em; font-weight: 600; transition: all 0.3s; }
+        .cluster-btn:hover { background: rgba(0, 212, 255, 0.2); }
+        .cluster-btn.active { background: rgba(0, 212, 255, 0.3); border-color: #00d4ff; }
+
+        .store-controls { background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 4px; padding: 12px; }
+        .week-btn { padding: 4px 6px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #00d4ff; cursor: pointer; font-size: 0.7em; font-weight: 600; transition: all 0.3s; }
+        .week-btn:hover { background: rgba(0, 212, 255, 0.2); }
+        .week-btn.active { background: rgba(0, 212, 255, 0.3); border-color: #00d4ff; }
+        .control-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+        .store-search { flex: 1; padding: 8px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #eee; font-size: 0.8em; }
+        .select-all-btn { padding: 8px 12px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #00d4ff; cursor: pointer; font-size: 0.75em; font-weight: 600; white-space: nowrap; }
+        .select-all-btn:hover { background: rgba(0, 212, 255, 0.2); }
+
+        .store-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+
+        .store-card { background: rgba(0, 0, 0, 0.3); border: 2px solid rgba(0, 212, 255, 0.1); border-radius: 3px; padding: 10px; cursor: pointer; transition: all 0.3s; }
+        .store-card:hover { border-color: rgba(0, 212, 255, 0.3); background: rgba(0, 0, 0, 0.4); }
+        .store-card.selected { border-color: #00d4ff; background: rgba(0, 212, 255, 0.15); }
+        .store-card.hist-top { border-color: #FFD700; border-width: 3px; }
+        .store-card.allocated { border-color: #00ffaa; background: rgba(0, 255, 170, 0.08); }
+        .store-card.allocated.selected { border-color: #00ffaa; background: rgba(0, 255, 170, 0.2); }
+        .item-card.allocated { border-color: #00ffaa !important; background: rgba(0, 255, 170, 0.08) !important; }
+        .store-id { color: #00d4ff; font-weight: 700; font-size: 0.85em; margin-bottom: 8px; }
+        .store-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.7em; color: #ccc; margin-bottom: 8px; }
+        .store-row { display: flex; justify-content: space-between; }
+        .store-label { color: #888; }
+        .store-value { color: #00d4ff; font-weight: 600; }
+        .store-sales-table { width: 100%; border-collapse: collapse; font-size: 0.65em; margin-bottom: 8px; }
+        .store-sales-table th { background: rgba(0, 212, 255, 0.1); padding: 3px; text-align: center; color: #00d4ff; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.2); }
+        .store-sales-table td { padding: 2px 3px; text-align: center; color: #ccc; border-bottom: 1px solid rgba(0, 212, 255, 0.05); }
+        .store-sales-table td.label { text-align: left; color: #888; }
+        .store-select-btn { width: 100%; padding: 6px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #00d4ff; cursor: pointer; font-size: 0.7em; font-weight: 600; transition: all 0.3s; }
+        .store-select-btn:hover { background: rgba(0, 212, 255, 0.2); }
+        .store-select-btn.selected { background: rgba(0, 212, 255, 0.3); border-color: #00d4ff; }
+
+        .pack-section { background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 3px; padding: 12px; margin-top: auto; }
+        .pack-type { display: flex; gap: 6px; margin-bottom: 10px; }
+        .pack-btn { flex: 1; padding: 6px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; cursor: pointer; font-size: 0.75em; font-weight: 600; color: #00d4ff; transition: all 0.3s; }
+        .pack-btn.active { background: rgba(0, 212, 255, 0.3); border-color: #00d4ff; }
+        .pack-inputs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 8px; }
+        .size-input { display: flex; flex-direction: column; }
+        .size-label { font-size: 0.65em; color: #888; text-align: center; margin-bottom: 2px; }
+        .size-input input { padding: 4px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #00d4ff; text-align: center; font-size: 0.75em; font-weight: 600; }
+
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .allocate-btn { padding: 8px; background: linear-gradient(135deg, #00d4ff, #00f5ff); color: #000; border: none; border-radius: 2px; font-weight: 600; cursor: pointer; font-size: 0.75em; }
+        .allocate-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3); }
+        .allocate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .export-btn { padding: 8px; background: rgba(76, 175, 80, 0.8); color: #fff; border: none; border-radius: 2px; font-weight: 600; cursor: pointer; font-size: 0.75em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👗 Allocation Tool</h1>
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 12px; z-index: 50;">
+                <button id="familyViewBtn" onclick="switchView('family')" style="padding: 10px 16px; background: rgba(0, 212, 255, 0.3); border: 2px solid rgba(0, 212, 255, 0.6); border-radius: 4px; color: #00d4ff; cursor: pointer; font-size: 0.9em; font-weight: 700; transition: all 0.3s;">📦 Family View</button>
+                <button id="storeViewBtn" onclick="switchView('store')" style="padding: 10px 16px; background: rgba(0, 212, 255, 0.1); border: 2px solid rgba(0, 212, 255, 0.2); border-radius: 4px; color: #00d4ff; cursor: pointer; font-size: 0.9em; font-weight: 700; transition: all 0.3s;">🏪 Store View</button>
+            </div>
+        </header>
+
+        <div class="file-uploads">
+            <div class="upload-box">
+                <label class="upload-label">Stock</label>
+                <input type="file" id="stockFile" accept=".csv" class="file-input">
+                <div class="status" id="stockStatus">Ready</div>
+            </div>
+            <div class="upload-box">
+                <label class="upload-label">Stores</label>
+                <input type="file" id="storeFile" accept=".xlsx" class="file-input">
+                <div class="status" id="storeStatus">Ready</div>
+            </div>
+            <div class="upload-box">
+                <label class="upload-label">V25 Sales</label>
+                <input type="file" id="salesFile" accept=".csv" class="file-input">
+                <div class="status" id="salesStatus">Ready</div>
+            </div>
+            <div class="upload-box">
+                <label class="upload-label">Packs</label>
+                <input type="file" id="packFile" accept=".xlsx" class="file-input">
+                <div class="status" id="packStatus">Ready</div>
+            </div>
+            <div class="upload-box" style="border-color: rgba(0,255,170,0.3); background: rgba(0,255,170,0.05);">
+                <label class="upload-label" style="color: #00ffaa;">About You Listing</label>
+                <input type="file" id="ayFile" accept=".csv" class="file-input">
+                <div class="status" id="ayStatus">Optional</div>
+            </div>
+            <div class="upload-box" style="border-color: rgba(255,170,0,0.3); background: rgba(255,170,0,0.05);">
+                <label class="upload-label" style="color: #ffaa00;">Zalando Listing</label>
+                <input type="file" id="zalandoFile" accept=".csv" class="file-input">
+                <div class="status" id="zalandoStatus">Optional</div>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="sidebar" id="sidebarLeft">
+                <div class="sidebar-title">Families</div>
+                
+                <!-- Gender filter -->
+                <div style="padding: 6px 8px; border-bottom: 1px solid rgba(0,212,255,0.15); margin-bottom: 6px;">
+                    <div style="font-size: 0.7em; color: #888; margin-bottom: 5px; font-weight: 600;">GENDER</div>
+                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                        <button class="gender-btn active" data-gender="ALL" onclick="setGenderFilter('ALL')" style="padding: 3px 8px; font-size: 0.7em; border-radius: 2px; border: 1px solid rgba(0,212,255,0.4); background: rgba(0,212,255,0.2); color: #00d4ff; cursor: pointer; font-weight: 600;">ALL</button>
+                        <button class="gender-btn" data-gender="HOMBRE" onclick="setGenderFilter('HOMBRE')" style="padding: 3px 8px; font-size: 0.7em; border-radius: 2px; border: 1px solid rgba(0,212,255,0.2); background: transparent; color: #00d4ff; cursor: pointer;">HOMBRE</button>
+                        <button class="gender-btn" data-gender="MUJER" onclick="setGenderFilter('MUJER')" style="padding: 3px 8px; font-size: 0.7em; border-radius: 2px; border: 1px solid rgba(0,212,255,0.2); background: transparent; color: #00d4ff; cursor: pointer;">MUJER</button>
+                        <button class="gender-btn" data-gender="NIÑO" onclick="setGenderFilter('NIÑO')" style="padding: 3px 8px; font-size: 0.7em; border-radius: 2px; border: 1px solid rgba(0,212,255,0.2); background: transparent; color: #00d4ff; cursor: pointer;">NIÑO</button>
+                        <button class="gender-btn" data-gender="NIÑA" onclick="setGenderFilter('NIÑA')" style="padding: 3px 8px; font-size: 0.7em; border-radius: 2px; border: 1px solid rgba(0,212,255,0.2); background: transparent; color: #00d4ff; cursor: pointer;">NIÑA</button>
+                    </div>
+                </div>
+                
+                <!-- Max stores filter -->
+                <div style="padding: 6px 8px; border-bottom: 1px solid rgba(0,212,255,0.15); margin-bottom: 6px;">
+                    <div style="font-size: 0.7em; color: #888; margin-bottom: 5px; font-weight: 600;">ITEM IN STORES ≤</div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="number" id="maxStoresFilter" min="0" max="999" placeholder="any" onchange="renderFamilies(); if(appData.selectedFamily) renderItems();" style="width: 60px; padding: 4px 6px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,212,255,0.3); border-radius: 2px; color: #00d4ff; font-size: 0.8em; font-weight: 600;">
+                        <span style="font-size: 0.7em; color: #888;">stores (blank = show all)</span>
+                    </div>
+                </div>
+                
+                <!-- Marketplace filter -->
+                <div style="padding: 6px 8px; border-bottom: 1px solid rgba(0,212,255,0.15); margin-bottom: 6px;">
+                    <div style="font-size: 0.7em; color: #888; margin-bottom: 5px; font-weight: 600;">LIVE ON MARKETPLACE</div>
+                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 4px; font-size: 0.72em; cursor: pointer; padding: 3px 6px; border: 1px solid rgba(0,255,170,0.3); border-radius: 2px; color: #00ffaa; white-space: nowrap;">
+                            <input type="checkbox" id="filterAY" onchange="renderFamilies(); if(appData.selectedFamily) renderItems();" style="cursor:pointer; accent-color: #00ffaa;">
+                            About You
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 4px; font-size: 0.72em; cursor: pointer; padding: 3px 6px; border: 1px solid rgba(255,170,0,0.3); border-radius: 2px; color: #ffaa00; white-space: nowrap;">
+                            <input type="checkbox" id="filterZalando" onchange="renderFamilies(); if(appData.selectedFamily) renderItems();" style="cursor:pointer; accent-color: #ffaa00;">
+                            Zalando
+                        </label>
+                    </div>
+                    <div id="mpFilterNote" style="font-size:0.65em; color:#888; margin-top:4px;">Upload AY/Zalando files to enable</div>
+                </div>
+                
+                <div id="familyList"></div>
+            </div>
+            
+            <div class="sidebar" id="storeViewSection" style="display: none; background: rgba(0, 0, 0, 0.2); border-right: 1px solid rgba(0, 212, 255, 0.2);"></div>
+
+            <div class="center-content">
+                <button onclick="clearSelection()" style="position: fixed; top: 20px; right: 20px; z-index: 100; padding: 8px 12px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 3px; color: #00d4ff; cursor: pointer; font-size: 0.8em; font-weight: 600;">← Back to Families</button>
+                
+                <div class="store-controls" id="storeControlsSection" style="display: none; position: sticky; top: 0; z-index: 40; background: rgba(0, 0, 0, 0.6); padding: 12px; border-bottom: 1px solid rgba(0, 212, 255, 0.2); margin-bottom: 16px;">
+                    <!-- Family View Filters -->
+                    <div id="familyViewFilters">
+                        <div style="font-size: 0.75em; color: #00d4ff; font-weight: 600; margin-bottom: 8px;">Select Weeks to Display (Max 5)</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 4px; margin-bottom: 12px; max-width: 400px;" id="weekSelector"></div>
+                        
+                        <div style="font-size: 0.75em; color: #00d4ff; font-weight: 600; margin-bottom: 8px; margin-top: 12px;">Filters</div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                            <input type="text" id="articleFilter" placeholder="Filter articles..." onkeyup="filterStores()" style="flex: 1; min-width: 150px; padding: 6px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #eee; font-size: 0.75em;">
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; gap: 4px; color: #00d4ff; font-size: 0.75em; cursor: pointer;">
+                                <input type="checkbox" id="hasSalesFilter" onchange="filterStores()" style="cursor: pointer;">
+                                Has Sales in Weeks
+                            </label>
+                        </div>
+                        
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                            <input type="text" class="store-search" id="storeSearch" placeholder="Search by store code..." onkeyup="filterStores()" style="flex: 1; min-width: 150px; padding: 6px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #eee; font-size: 0.75em;">
+                            <button class="select-all-btn" onclick="selectAllStores()" style="padding: 6px 12px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #00d4ff; cursor: pointer; font-size: 0.75em; font-weight: 600;">✓ Select All</button>
+                        </div>
+                        <div class="store-list" id="storeList"></div>
+                    </div>
+                    
+                    <!-- Store View Filters -->
+                    <div id="storeViewFilters" style="display: none;">
+                        <div style="font-size: 0.75em; color: #00d4ff; font-weight: 600; margin-bottom: 8px;">Filters</div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                            <input type="text" id="colorFilter" placeholder="Filter colors (white, black, etc)..." onkeyup="renderStoreViewItems()" style="flex: 1; min-width: 150px; padding: 6px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #eee; font-size: 0.75em;">
+                            <input type="text" id="familyFilter" placeholder="Filter families..." onkeyup="renderStoreViewItems()" style="flex: 1; min-width: 150px; padding: 6px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #eee; font-size: 0.75em;">
+                            <input type="text" id="storeArticleFilter" placeholder="Filter articles..." onkeyup="renderStoreViewItems()" style="flex: 1; min-width: 150px; padding: 6px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 2px; color: #eee; font-size: 0.75em;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="centerStoreView" style="display: none;"></div>
+                
+                <div id="stickyTop" style="display: none; position: sticky; top: 0; z-index: 50; background: rgba(10,10,30,0.97); border-bottom: 1px solid rgba(0,212,255,0.2); padding-bottom: 8px; margin-bottom: 8px;">
+                    <div class="mc-header" id="mcHeader">
+                        <div>
+                            <div class="mc-image" id="mcImageContainer">
+                                <img id="mcImage" src="">
+                            </div>
+                            <div class="mc-image-label">Current</div>
+                        </div>
+                        <div>
+                            <div class="mc-image" id="mcHistImageContainer">
+                                <img id="mcHistImage" src="">
+                            </div>
+                            <div class="mc-image-label">Historical LY</div>
+                        </div>
+                        <div class="mc-details">
+                            <div class="mc-detail-item">
+                                <div class="mc-detail-label">Article (Current)</div>
+                                <div class="mc-detail-value" id="mcArticle">-</div>
+                            </div>
+                            <div class="mc-detail-item">
+                                <div class="mc-detail-label">Article (Historical)</div>
+                                <div class="mc-detail-value" id="mcHistArticle">-</div>
+                            </div>
+                            <div class="mc-detail-item">
+                                <div class="mc-detail-label">Color</div>
+                                <div class="mc-detail-value" id="mcColor">-</div>
+                            </div>
+                            <div class="mc-detail-item">
+                                <div class="mc-detail-label">CWH Stock</div>
+                                <div class="mc-detail-value" id="mcStock">-</div>
+                            </div>
+                            <div class="mc-detail-item">
+                                <div class="mc-detail-label">Stores w/ Item</div>
+                                <div class="mc-detail-value" id="mcStoresWithItem">-</div>
+                            </div>
+                            <div class="mc-detail-item">
+                                <div class="mc-detail-label">Stores Available</div>
+                                <div class="mc-detail-value" id="mcStoresAvailable">-</div>
+                            </div>
+                            <div class="mc-detail-item">
+                                <div class="mc-detail-label">Selected</div>
+                                <div class="mc-detail-value" id="mcSelected">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pack-section" id="packSection">
+                        <div style="font-size: 0.8em; font-weight: 600; color: #00d4ff; margin-bottom: 8px;">Pack Type</div>
+                        <div class="pack-type">
+                            <button class="pack-btn active" onclick="selectPackType('single')">Single</button>
+                            <button class="pack-btn" onclick="selectPackType('custom')">Custom</button>
+                        </div>
+                        <div id="singlePack" style="font-size: 0.75em; color: #888; text-align: center;">Default: 1/2/2/2/2/1 = 10 units</div>
+                        <div id="customPack" style="display: none;">
+                            <div class="pack-inputs" id="packInputs"></div>
+                            <div style="margin-top: 6px; text-align: center; color: #00d4ff; font-weight: 600; font-size: 0.75em;">Total: <span id="packTotal">10</span> units</div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="allocate-btn" onclick="allocateStores()" id="allocateBtn" disabled>✓ Allocate</button>
+                            <button class="export-btn" onclick="exportAllocations()">📥 Export</button>
+                            <button class="clear-btn" onclick="clearAllocations()" style="background: rgba(255, 100, 100, 0.2); border-color: rgba(255, 100, 100, 0.4); color: #ff6464;">🗑️ Clear All</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clusters-section" id="clustersSection" style="display: none;">
+                    <div class="cluster-group">
+                        <div class="cluster-group-title">Stores</div>
+                        <div class="cluster-btns">
+                            <button class="cluster-btn active" onclick="filterByCluster(null)">🌍 All</button>
+                        </div>
+                    </div>
+                    <div class="cluster-group" id="areaGroup" style="display: none;">
+                        <div class="cluster-group-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Area</span>
+                            <label style="display: flex; align-items: center; gap: 4px; color: #ff6464; font-size: 0.7em; cursor: pointer;">
+                                <input type="checkbox" id="areaExclude" onchange="renderClusters()" style="cursor: pointer;">
+                                NOT
+                            </label>
+                        </div>
+                        <div class="cluster-btns" id="areaClusters"></div>
+                    </div>
+                    <div class="cluster-group" id="sizeGroup" style="display: none;">
+                        <div class="cluster-group-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Size</span>
+                            <label style="display: flex; align-items: center; gap: 4px; color: #ff6464; font-size: 0.7em; cursor: pointer;">
+                                <input type="checkbox" id="sizeExclude" onchange="renderClusters()" style="cursor: pointer;">
+                                NOT
+                            </label>
+                        </div>
+                        <div class="cluster-btns" id="sizeClusters"></div>
+                    </div>
+                    <div class="cluster-group" id="managerGroup" style="display: none;">
+                        <div class="cluster-group-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Manager</span>
+                            <label style="display: flex; align-items: center; gap: 4px; color: #ff6464; font-size: 0.7em; cursor: pointer;">
+                                <input type="checkbox" id="managerExclude" onchange="renderClusters()" style="cursor: pointer;">
+                                NOT
+                            </label>
+                        </div>
+                        <div class="cluster-btns" id="managerClusters"></div>
+                    </div>
+                    <div class="cluster-group" id="transitGroup" style="display: none;">
+                        <div class="cluster-group-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Transit</span>
+                            <label style="display: flex; align-items: center; gap: 4px; color: #ff6464; font-size: 0.7em; cursor: pointer;">
+                                <input type="checkbox" id="transitExclude" onchange="renderClusters()" style="cursor: pointer;">
+                                NOT
+                            </label>
+                        </div>
+                        <div class="cluster-btns" id="transitClusters"></div>
+                    </div>
+                    <div class="cluster-group" id="channelGroup" style="display: none;">
+                        <div class="cluster-group-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Channel</span>
+                            <label style="display: flex; align-items: center; gap: 4px; color: #ff6464; font-size: 0.7em; cursor: pointer;">
+                                <input type="checkbox" id="channelExclude" onchange="renderClusters()" style="cursor: pointer;">
+                                NOT
+                            </label>
+                        </div>
+                        <div class="cluster-btns" id="channelClusters"></div>
+                    </div>
+                    <div class="cluster-group" id="kidsGroup" style="display: none;">
+                        <div class="cluster-group-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Kids</span>
+                            <label style="display: flex; align-items: center; gap: 4px; color: #ff6464; font-size: 0.7em; cursor: pointer;">
+                                <input type="checkbox" id="kidsExclude" onchange="renderClusters()" style="cursor: pointer;">
+                                NOT
+                            </label>
+                        </div>
+                        <div class="cluster-btns" id="kidsClusters"></div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let appData = {
+            stock: {}, stores: {}, salesRaw: [], packs: {},
+            families: {},
+            selectedFamily: null, selectedSubfamily: null, selectedItem: null,
+            selectedStore: null, // For Store View
+            currentView: 'family', // 'family' or 'store'
+            genderFilter: 'ALL', // Gender filter for family view
+            ayLive: null,        // Set of article_colors live on About You (null = not loaded = no filter)
+            zalandoLive: null,   // Set of article_colors live on Zalando (null = not loaded = no filter)
+            eanToArticleColor: {}, // EAN → article_color map built from AY file
+            clusterFilter: null,
+            selectedStores: new Set(),
+            selectedWeeks: new Set(),
+            selectedItems: new Set(),
+            colorFilter: '', // Color filter
+            packType: 'single',
+            pack: [1, 2, 2, 2, 2, 1],
+            allocations: [],
+            storeCodeMap: {},
+            histTopStores: new Set()
+        };
+
+        // Load Stock
+        document.getElementById('stockFile').addEventListener('change', async (e) => {
+            try {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const text = await file.text();
+                const parsed = Papa.parse(text, { header: true, delimiter: ';', encoding: 'ISO-8859-1' });
+                appData.stock = {};
+                appData.families = {};
+                
+                parsed.data.forEach((row) => {
+                    if (row.fldidarticulo) {
+                        const key = `${row.fldidarticulo}_${row.fldidcolor}`;
+                        if (!appData.stock[key]) appData.stock[key] = {};
+
+                        // Normalize almacen: strip leading zeros and map through storeCodeMap
+                        // New stock files use '00000008', old ones use '8' — normalize both
+                        const rawAlmacen = String(row.fldIdAlmacen || '').trim();
+                        const numericAlmacen = parseInt(rawAlmacen, 10);
+                        // Use storeCodeMap if loaded, otherwise use numeric value
+                        const storeKey = appData.storeCodeMap[numericAlmacen] 
+                                      || appData.storeCodeMap[rawAlmacen]
+                                      || numericAlmacen
+                                      || rawAlmacen;
+                        appData.stock[key][storeKey] = row;
+
+                        // Only build family tree from CWH rows to ensure consistent naming
+                        // CWH = 1111 (handles both '00001111' and '1111' and 1111)
+                        if (numericAlmacen === 1111 || numericAlmacen === 6665) {
+                            const sexo = row.fldidSexo || 'UNKNOWN';
+                            const familia = row.fldDescriFam || 'UNKNOWN';
+                            const subfamilia = row.fldidSubFamilia || 'UNKNOWN';
+
+                            if (!appData.families[sexo]) appData.families[sexo] = {};
+                            if (!appData.families[sexo][familia]) appData.families[sexo][familia] = new Set();
+                            appData.families[sexo][familia].add(subfamilia);
+                        }
+                    }
+                });
+                
+                // Initialize Family View
+                appData.currentView = 'family';
+                switchView('family');
+                document.getElementById('stockStatus').textContent = `✓ ${Object.keys(appData.stock).length}`;
+                document.getElementById('stockStatus').classList.add('ok');
+            } catch (err) {
+                alert('Error loading stock file: ' + err.message);
+                console.error(err);
+            }
+        });
+
+        // Load Stores
+        document.getElementById('storeFile').addEventListener('change', async (e) => {
+            const wb = await readExcel(e.target.files[0]);
+            const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+            appData.stores = {};
+            appData.storeCodeMap = {};
+            
+            data.forEach(row => {
+                const almacen = String(row.ALMACEN).padStart(8, '0');
+                const code = row['CODE FOR EXPORT'] || almacen; // Use CODE FOR EXPORT if available
+                
+                appData.stores[code] = {
+                    id: code,
+                    almacen: almacen,
+                    area: (row.AREA || 'N/A').toString().trim(),
+                    manager: (row['AREA MANAGER'] || 'N/A').toString().trim(),
+                    size: (row.SIZE || 'N/A').toString().toUpperCase().trim(),
+                    kids: (row['HAS KIDS'] || 'N/A').toString().toUpperCase().trim(),
+                    transit: (row['Transit Time'] || 'N/A').toString().toUpperCase().trim(),
+                    channel: (row.CHANNEL || 'STORE').toString().toUpperCase().trim(),
+                    l4l: row.L4L,
+                    comp_store: row['COMP STORE']
+                };
+                appData.storeCodeMap[almacen] = code;        // '00000008' → 8
+                appData.storeCodeMap[parseInt(almacen)] = code; // 8 → 8
+            });
+            
+            renderClusters();
+            document.getElementById('storeStatus').textContent = `✓ ${Object.keys(appData.stores).length}`;
+            document.getElementById('storeStatus').classList.add('ok');
+
+            // Re-render items if stock already loaded — store counts were 0 before
+            if (Object.keys(appData.stock).length > 0) {
+                renderFamilies();
+                if (appData.selectedFamily) renderItems();
+            }
+        });
+
+        // Load Sales
+        document.getElementById('salesFile').addEventListener('change', async (e) => {
+            try {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const text = await file.text();
+                const parsed = Papa.parse(text, { header: true, delimiter: ';', encoding: 'ISO-8859-1' });
+                appData.salesRaw = [];
+                
+                parsed.data.forEach(row => {
+                    if (row.FLDIDALMACEN && row.FLDIDARTICULO && row.FECHA) {
+                        const week = getWeekNumber(row.FECHA.substring(0, 10));
+                        const rawAlm = String(row.FLDIDALMACEN).trim();
+                        const numAlm = parseInt(rawAlm, 10);
+                        const storeCode = appData.storeCodeMap[numAlm] || appData.storeCodeMap[rawAlm] || numAlm || rawAlm;
+                        // Normalize column names — sales files use ALL CAPS (FLDIDSEXO, FLDIDSUBTENDENCIA)
+                        // but store view code looks for mixed case (fldidSexo, fldIdSubTendencia)
+                        appData.salesRaw.push({
+                            ...row,
+                            FLDIDALMACEN: storeCode,
+                            week,
+                            qty: parseInt(row.FLDCANTVENTA) || 0,
+                            // Normalize family/subfamily fields for compatibility
+                            FLDDESCRIFAM: row.FLDDESCRIFAM || row.fldDescriFam || '',
+                            fldDescriFam: row.FLDDESCRIFAM || row.fldDescriFam || '',
+                            fldIdSubTendencia: row.FLDIDSUBTENDENCIA || row.fldIdSubTendencia || '',
+                            fldidSubFamilia: row.FLDIDSUBFAMILIA || row.fldidSubFamilia || '',
+                        });
+                    }
+                });
+                document.getElementById('salesStatus').textContent = `✓ ${appData.salesRaw.length}`;
+                document.getElementById('salesStatus').classList.add('ok');
+            } catch (err) {
+                alert('Error loading sales file: ' + err.message);
+                console.error(err);
+            }
+        });
+
+        // Load Packs
+        document.getElementById('packFile').addEventListener('change', async (e) => {
+            try {
+                const file = e.target.files[0];
+                if (!file) {
+                    document.getElementById('packStatus').textContent = `✗ No file`;
+                    return;
+                }
+
+                const wb = await readExcel(file);
+                if (!wb.Sheets || wb.SheetNames.length === 0) {
+                    document.getElementById('packStatus').textContent = `✗ No sheets`;
+                    return;
+                }
+
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const data = XLSX.utils.sheet_to_json(ws);
+                
+                appData.packs = {};
+                data.forEach((row) => {
+                    // Handle various possible column name formats
+                    const article = row['FLDIDARTICULO'] || row['fldidarticulo'] || 
+                                    row['article'] || row['ARTICLE'] || row['Article'];
+                    // Skip the second header row ("Sum of FLDTALLA1" etc)
+                    if (!article || String(article).includes('FLDTALLA') || String(article).toUpperCase() === 'FLDIDARTICULO') return;
+                    appData.packs[String(article).trim()] = row;
+                });
+                
+                document.getElementById('packStatus').textContent = `✓ ${Object.keys(appData.packs).length}`;
+                document.getElementById('packStatus').classList.add('ok');
+            } catch (err) {
+                document.getElementById('packStatus').textContent = `✗ Error`;
+            }
+        });
+
+        // About You listing loader
+        document.getElementById('ayFile').addEventListener('change', async (e) => {
+            try {
+                const file = e.target.files[0];
+                if (!file) return;
+                document.getElementById('ayStatus').textContent = 'Loading...';
+                const text = await file.text();
+                const rows = Papa.parse(text, { header: true, delimiter: ';', skipEmptyLines: true }).data;
+                
+                appData.ayLive = new Set();
+                appData.eanToArticleColor = {};
+                
+                rows.forEach(row => {
+                    const pav = row['partner_article_variant'] || '';
+                    const ean = String(row['ean'] || '').trim();
+                    const cluster = row['status_cluster'] || '';
+                    
+                    if (!pav) return;
+                    // article_color: replace first '-' with '_' → e.g. '2512TR20-000323' → '2512TR20_000323'
+                    const articleColor = pav.replace('-', '_');
+                    
+                    // Build EAN→article_color map (used later for Zalando cross-ref)
+                    if (ean) appData.eanToArticleColor[ean] = articleColor;
+                    
+                    if (cluster === 'Live') appData.ayLive.add(articleColor);
+                });
+                
+                document.getElementById('ayStatus').textContent = `✓ ${appData.ayLive.size} live`;
+                document.getElementById('ayStatus').style.color = '#00ffaa';
+                document.getElementById('filterAY').disabled = false;
+                document.getElementById('mpFilterNote').textContent = '';
+                
+                // Re-render items if a family is selected
+                if (appData.selectedFamily) renderItems();
+                renderFamilies();
+            } catch (err) {
+                document.getElementById('ayStatus').textContent = `✗ Error: ${err.message}`;
+                console.error(err);
+            }
+        });
+
+        // Zalando listing loader
+        document.getElementById('zalandoFile').addEventListener('change', async (e) => {
+            try {
+                const file = e.target.files[0];
+                if (!file) return;
+                document.getElementById('zalandoStatus').textContent = 'Loading...';
+                const text = await file.text();
+                const rows = Papa.parse(text, { header: true, delimiter: ';', skipEmptyLines: true }).data;
+                
+                appData.zalandoLive = new Set();
+                
+                rows.forEach(row => {
+                    const state = (row['product_state'] || '').toLowerCase();
+                    const isActive = parseInt(row['is_active'] || '0');
+                    const ean = String(row['ean'] || '').trim();
+                    
+                    if (state === 'live' && isActive === 1 && ean) {
+                        // Map EAN → article_color using the AY-derived map
+                        const ac = appData.eanToArticleColor[ean];
+                        if (ac) appData.zalandoLive.add(ac);
+                    }
+                });
+                
+                document.getElementById('zalandoStatus').textContent = `✓ ${appData.zalandoLive.size} live`;
+                document.getElementById('zalandoStatus').style.color = '#ffaa00';
+                document.getElementById('filterZalando').disabled = false;
+                document.getElementById('mpFilterNote').textContent = '';
+                
+                // Re-render items if a family is selected
+                if (appData.selectedFamily) renderItems();
+                renderFamilies();
+            } catch (err) {
+                document.getElementById('zalandoStatus').textContent = `✗ Error: ${err.message}`;
+                console.error(err);
+            }
+        });
+
+        function readExcel(file) {
+            return new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(XLSX.read(e.target.result, { type: 'array' }));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function getWeekNumber(dateString) {
+            const d = new Date(dateString + 'T00:00:00Z');
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const weekNum = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return weekNum;
+        }
+
+        // Families that are structurally 1-2 sizes (bags, accessories, socks) - exempt from 3-size rule
+        const ONE_SIZE_FAMILIES = new Set([
+            'ACCESORIOS HOMBRE','BOLSOS MUJER','BUFANDAS & FOULARDS',
+            'CALCETINES HOMBRE','COMPLEMENTOS UNISEX'
+        ]);
+        const SIZES = ['fldTalla1','fldTalla2','fldTalla3','fldTalla4','fldTalla5','fldTalla6',
+                       'fldTalla7','fldTalla8','fldTalla9','fldTalla10','fldTalla11','fldTalla12',
+                       'fldTalla13','fldTalla14','fldTalla15'];
+
+        function passesMinSizesRule(cwhRow) {
+            if (!cwhRow) return false;
+            const familia = cwhRow.fldDescriFam || '';
+
+            // Get pack for this article to know which sizes matter
+            const article = cwhRow.fldidarticulo || cwhRow.FLDIDARTICULO || '';
+            const packRow = appData.packs[String(article).trim()];
+
+            let packSizes; // indices of sizes that are in the pack (pack qty > 0)
+            if (packRow) {
+                packSizes = [1,2,3,4,5,6].filter(i => {
+                    const v = parseInt(packRow[`FLDTALLA${i}`] ?? packRow[`S${i}`]) || 0;
+                    return v > 0;
+                });
+            } else {
+                // No pack data: use all sizes that have any stock as proxy
+                packSizes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].filter(i =>
+                    parseInt(cwhRow[`fldTalla${i}`]) > 0
+                );
+            }
+
+            const totalPackSizes = packSizes.length;
+            if (totalPackSizes === 0) return false;
+
+            // Min sizes rule: 1-size families need 1+, others need 3+
+            const minSizes = ONE_SIZE_FAMILIES.has(familia) ? 1 : 3;
+            if (totalPackSizes < minSizes) return false;
+
+            // 60% rule: at least 60% of pack sizes must have > 5 units in CWH
+            const sizesOver5 = packSizes.filter(i =>
+                (parseInt(cwhRow[`fldTalla${i}`]) || 0) > 5
+            ).length;
+            const pctOver5 = sizesOver5 / totalPackSizes;
+            return pctOver5 >= 0.6;
+        }
+
+        function setGenderFilter(gender) {
+            appData.genderFilter = gender;
+            // Update button styles
+            document.querySelectorAll('.gender-btn').forEach(btn => {
+                const isActive = btn.getAttribute('data-gender') === gender;
+                btn.style.background = isActive ? 'rgba(0,212,255,0.2)' : 'transparent';
+                btn.style.borderColor = isActive ? 'rgba(0,212,255,0.4)' : 'rgba(0,212,255,0.2)';
+                btn.style.fontWeight = isActive ? '600' : '400';
+            });
+            renderFamilies();
+            if (appData.selectedFamily) renderItems();
+        }
+
+        function getMaxStoresFilter() {
+            const val = document.getElementById('maxStoresFilter')?.value;
+            return val === '' || val === null || val === undefined ? null : parseInt(val);
+        }
+
+        // Count how many stores have a given item
+        function storesWithItem(key) {
+            return Object.values(appData.stores).filter(store => stockHas(key, store.id)).length;
+        }
+
+        function renderFamilies() {
+            const list = document.getElementById('familyList');
+            list.innerHTML = '';
+            const maxStores = getMaxStoresFilter();
+            const genderF = appData.genderFilter || 'ALL';
+
+            Object.entries(appData.families).sort().forEach(([sexo, familias]) => {
+                // Gender filter
+                if (genderF !== 'ALL' && sexo.toUpperCase() !== genderF.toUpperCase()) return;
+
+                const sexoDiv = document.createElement('div');
+                sexoDiv.className = 'family-group';
+                const sexoLabel = document.createElement('div');
+                sexoLabel.className = 'sexo-label';
+                sexoLabel.textContent = sexo;
+                sexoDiv.appendChild(sexoLabel);
+
+                Object.entries(familias).sort().forEach(([familia, subfamilias]) => {
+                    // Count items in this family that pass the maxStores filter
+                    let totalItems = 0, filteredItems = 0;
+                    Object.entries(appData.stock).forEach(([key, stores]) => {
+                        const cwh = getCWH(stores);
+                        if (!cwh || cwh.fldidSexo !== sexo || cwh.fldDescriFam !== familia) return;
+                        const sizes = ['fldTalla1','fldTalla2','fldTalla3','fldTalla4','fldTalla5','fldTalla6','fldTalla7','fldTalla8','fldTalla9','fldTalla10','fldTalla11','fldTalla12','fldTalla13','fldTalla14','fldTalla15'];
+                        if (!passesMinSizesRule(cwh)) return;
+                        const sc = storesWithItem(key);
+                        const storeList = Object.values(appData.stores);
+                        // If stores not loaded yet, assume available; otherwise check properly
+                        const hasAvailable = storeList.length === 0 || storeList.some(store => !stockHas(key, store.id));
+                        if (!hasAvailable) return;
+                        totalItems++;
+                        if (maxStores === null || sc <= maxStores) filteredItems++;
+                    });
+
+                    if (maxStores !== null && filteredItems === 0) return; // hide empty families
+
+                    const familiaDiv = document.createElement('div');
+                    familiaDiv.className = 'family-subgroup';
+                    const familiaItem = document.createElement('div');
+                    familiaItem.className = 'family-item';
+                    // Show item count badge
+                    const badge = maxStores !== null ? ` (${filteredItems}/${totalItems})` : ` (${totalItems})`;
+                    familiaItem.textContent = familia + badge;
+                    familiaItem.style.fontSize = '0.82em';
+                    familiaItem.onclick = () => selectFamily(sexo, familia);
+                    familiaDiv.appendChild(familiaItem);
+
+                    Array.from(subfamilias).sort().forEach(subfam => {
+                        const subfamItem = document.createElement('div');
+                        subfamItem.className = 'family-item';
+                        subfamItem.style.marginLeft = '12px';
+                        subfamItem.style.fontSize = '0.78em';
+                        subfamItem.textContent = subfam;
+                        subfamItem.onclick = () => selectSubfamily(sexo, familia, subfam);
+                        familiaDiv.appendChild(subfamItem);
+                    });
+
+                    sexoDiv.appendChild(familiaDiv);
+                });
+
+                // Only add sexo group if it has visible families
+                if (sexoDiv.children.length > 1) list.appendChild(sexoDiv);
+            });
+        }
+
+        function selectFamily(sexo, familia) {
+            appData.selectedFamily = `${sexo}|${familia}`;
+            appData.selectedSubfamily = null;
+            appData.selectedItem = null;
+            appData.selectedStores.clear();
+            appData.histTopStores.clear();
+            renderItems();
+        }
+
+        function selectSubfamily(sexo, familia, subfam) {
+            appData.selectedFamily = `${sexo}|${familia}`;
+            appData.selectedSubfamily = subfam;
+            appData.selectedItem = null;
+            appData.selectedStores.clear();
+            appData.histTopStores.clear();
+            renderItems();
+        }
+
+        function renderItems() {
+            if (!appData.selectedFamily) {
+                document.getElementById('stickyTop').style.display = 'none';
+                document.getElementById('clustersSection').style.display = 'none';
+                document.getElementById('storeControlsSection').style.display = 'none';
+                // packSection hidden via stickyTop
+                return;
+            }
+
+            document.getElementById('clustersSection').style.display = 'block';
+
+            const [sexo, familia] = appData.selectedFamily.split('|');
+            const items = {};
+            
+            // Calculate Pareto 80% for CURRENT articles
+            let familySales = {};
+            appData.salesRaw.forEach(sale => {
+                if (sale.FLDDESCRIFAM === familia) {
+                    const article = sale.FLDIDARTICULO;
+                    if (!familySales[article]) familySales[article] = 0;
+                    familySales[article] += sale.qty;
+                }
+            });
+
+            const totalSales = Object.values(familySales).reduce((a, b) => a + b, 0);
+            let accum = 0;
+            const paretoArticles = new Set();
+            Object.entries(familySales)
+                .sort(([,a], [,b]) => b - a)
+                .forEach(([article, sales]) => {
+                    accum += sales;
+                    if (accum <= totalSales * 0.8) {
+                        paretoArticles.add(article);
+                    }
+                });
+
+            // Collect items
+            Object.entries(appData.stock).forEach(([key, stores]) => {
+                const cwh = getCWH(stores);
+                if (!cwh || cwh.fldidSexo !== sexo || cwh.fldDescriFam !== familia) return;
+                if (appData.selectedSubfamily && cwh.fldidSubFamilia !== appData.selectedSubfamily) return;
+
+                const sizes = ['fldTalla1','fldTalla2','fldTalla3','fldTalla4','fldTalla5','fldTalla6','fldTalla7','fldTalla8','fldTalla9','fldTalla10','fldTalla11','fldTalla12','fldTalla13','fldTalla14','fldTalla15'];
+                if (!passesMinSizesRule(cwh)) return;
+
+                const storeList = Object.values(appData.stores);
+                const hasItem = (store) => stockHas(key, store.id);
+                const storesWithout = storeList.filter(store => !hasItem(store));
+                // If stores not loaded yet, show all items; otherwise hide fully implanted items
+                if (storeList.length > 0 && storesWithout.length === 0) return;
+
+                // Max stores filter
+                const maxStores = getMaxStoresFilter();
+                const sc = storeList.filter(store => hasItem(store)).length;
+                if (maxStores !== null && sc > maxStores) return;
+
+                // Marketplace filter
+                const filterAY = document.getElementById('filterAY')?.checked && appData.ayLive;
+                const filterZ = document.getElementById('filterZalando')?.checked && appData.zalandoLive;
+                if (filterAY && !appData.ayLive.has(key)) return;
+                if (filterZ && !appData.zalandoLive.has(key)) return;
+
+                const [article, color] = key.split('_');
+                items[key] = { article, color, isPareto: paretoArticles.has(article) };
+            });
+
+            // Store items for filtering and check sales in selected weeks
+            appData.allItems = {};
+            Object.entries(items).forEach(([key, item]) => {
+                let hasSalesInWeeks = false;
+                const [article, color] = key.split('_');
+                
+                // Check if this item has sales in any selected week
+                if (appData.selectedWeeks.size > 0) {
+                    appData.salesRaw.forEach(sale => {
+                        if (sale.FLDIDARTICULO === article && appData.selectedWeeks.has(sale.week)) {
+                            hasSalesInWeeks = true;
+                        }
+                    });
+                } else {
+                    hasSalesInWeeks = true; // If no weeks selected, show all
+                }
+                
+                appData.allItems[key] = { ...item, hasSalesInWeeks,
+                    ayLive: appData.ayLive ? appData.ayLive.has(key) : null,
+                    zalandoLive: appData.zalandoLive ? appData.zalandoLive.has(key) : null
+                };
+            });
+            
+            // Display items in sidebar
+            const list = document.getElementById('familyList');
+            let itemsHtml = `<div style="color: #00d4ff; font-weight: 600; font-size: 0.8em; margin-bottom: 8px;">Items (${Object.keys(appData.allItems).length})</div><div class="items-grid">`;
+            
+            Object.entries(appData.allItems).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)).forEach(([key, item]) => {
+                const colorPadded = String(item.color).padStart(6, '0');
+                const isSelected = appData.selectedItems && appData.selectedItems.has(key);
+                
+                let storesWithItem = 0;
+                Object.values(appData.stores).forEach(store => {
+                    if (stockHas(key, store.id)) storesWithItem++;
+                });
+                const totalStores = Object.keys(appData.stores).length;
+                const cwhRow = getCWH(appData.stock[key]||{});
+                const SIZES = ['fldTalla1','fldTalla2','fldTalla3','fldTalla4','fldTalla5','fldTalla6','fldTalla7','fldTalla8','fldTalla9','fldTalla10','fldTalla11','fldTalla12','fldTalla13','fldTalla14','fldTalla15'];
+                const cwhQty = cwhRow ? SIZES.reduce((a, s) => a + (parseInt(cwhRow[s]) || 0), 0) : 0;
+                
+                const imgUrl = `https://koroshishop.com/cdn/shop/files/${item.article}_${colorPadded}_1.jpg`;
+                const historicArticle = String(parseInt(item.article.substring(0,2)) - 1).padStart(2, '0') + item.article.substring(2);
+                const historicImgUrl = `https://koroshishop.com/cdn/shop/files/${historicArticle}_${colorPadded}_1.jpg`;
+                
+                itemsHtml += `
+                    <div class="item-card ${isSelected ? 'selected' : ''} ${item.isPareto ? 'pareto' : ''} ${isItemAllocatedAnywhere(key) ? 'allocated' : ''}" onclick="toggleItemSelection('${key}', event)">
+                        <div class="item-img">
+                            <img src="${imgUrl}" onerror="this.src='${historicImgUrl}'" style="display: block;">
+                            <div class="item-counter">${storesWithItem}/${totalStores}<br>▣${cwhQty}</div>
+                        </div>
+                        <div>${item.article}_${colorPadded}</div>
+                        ${item.isPareto ? '<div class="item-star">★ TOP</div>' : ''}
+                        ${isItemAllocatedAnywhere(key) ? '<div style="font-size:0.55em;color:#00ffaa;font-weight:600;text-align:center;">✓ ALLOCATED</div>' : ''}
+                        <div style="display:flex; gap:2px; justify-content:center; flex-wrap:wrap; margin-top:2px;">
+                            ${item.ayLive === true ? '<span style="font-size:0.55em;padding:1px 3px;background:rgba(0,255,170,0.2);border:1px solid rgba(0,255,170,0.4);border-radius:2px;color:#00ffaa;">AY</span>' : item.ayLive === false ? '<span style="font-size:0.55em;padding:1px 3px;background:rgba(255,100,100,0.1);border:1px solid rgba(255,100,100,0.3);border-radius:2px;color:#ff6464;">AY✗</span>' : ''}
+                            ${item.zalandoLive === true ? '<span style="font-size:0.55em;padding:1px 3px;background:rgba(255,170,0,0.2);border:1px solid rgba(255,170,0,0.4);border-radius:2px;color:#ffaa00;">ZA</span>' : item.zalandoLive === false ? '<span style="font-size:0.55em;padding:1px 3px;background:rgba(255,100,100,0.1);border:1px solid rgba(255,100,100,0.3);border-radius:2px;color:#ff6464;">ZA✗</span>' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            itemsHtml += '</div>';
+            list.innerHTML = itemsHtml;
+        }
+
+        function toggleItemSelection(key, event) {
+            // Ctrl/Cmd + Click = multi-select, regular click = single select
+            if (event.ctrlKey || event.metaKey) {
+                // Multi-select mode
+                if (!appData.selectedItems) appData.selectedItems = new Set();
+                if (appData.selectedItems.has(key)) {
+                    appData.selectedItems.delete(key);
+                } else {
+                    appData.selectedItems.add(key);
+                }
+            } else {
+                // Single select mode
+                appData.selectedItem = key;
+                appData.selectedItems = new Set([key]);
+            }
+            
+            appData.selectedStores.clear();
+            
+            if (appData.selectedItems.size > 0) {
+                // Show first item details
+                const firstItem = Array.from(appData.selectedItems)[0];
+                selectItem(firstItem);
+            }
+            
+            renderItems();
+        }
+
+        function selectItem(key) {
+            appData.selectedItem = key;
+            if (!appData.selectedItems) appData.selectedItems = new Set();
+            appData.selectedItems.add(key);
+            appData.selectedStores.clear();
+            
+            // Calculate which stores had the historic item in top 80%
+            const [article, color] = key.split('_');
+            const historicArticle = String(parseInt(article.substring(0,2)) - 1).padStart(2, '0') + article.substring(2);
+            const [sexo, familia] = appData.selectedFamily.split('|');
+            
+            // Get LY sales for historic article by store
+            let storeSales = {};
+            appData.salesRaw.forEach(sale => {
+                if (sale.FLDIDARTICULO === historicArticle && sale.FLDDESCRIFAM === familia) {
+                    if (!storeSales[sale.FLDIDALMACEN]) storeSales[sale.FLDIDALMACEN] = 0;
+                    storeSales[sale.FLDIDALMACEN] += sale.qty;
+                }
+            });
+            
+            // Calculate Pareto 80% across stores
+            const totalStoreSales = Object.values(storeSales).reduce((a, b) => a + b, 0);
+            let accum = 0;
+            appData.histTopStores.clear();
+            Object.entries(storeSales)
+                .sort(([,a], [,b]) => b - a)
+                .forEach(([store, sales]) => {
+                    accum += sales;
+                    if (accum <= totalStoreSales * 0.8) {
+                        appData.histTopStores.add(store);
+                    }
+                });
+            
+            updateMCHeader();
+            updateStoreList();
+        }
+
+        function clearSelection() {
+            appData.selectedItem = null;
+            appData.selectedStores.clear();
+            appData.selectedWeeks.clear();
+            document.getElementById('stickyTop').style.display = 'none';
+            document.getElementById('clustersSection').style.display = 'none';
+            document.getElementById('storeControlsSection').style.display = 'none';
+            // packSection hidden via stickyTop
+            renderFamilies();
+        }
+
+        // Get CWH row - checks both warehouse 1111 (main) and 6665 (outlet CWH)
+        function getCWH(stockData) {
+            return stockData[1111] || stockData[6665] || null;
+        }
+
+        // Robust stock lookup - handles number/string key mismatch
+        function stockHas(itemKey, storeId) {
+            const s = appData.stock[itemKey];
+            if (!s) return false;
+            return !!(s[storeId] || s[Number(storeId)] || s[String(storeId)]);
+        }
+
+        function updateMCHeader() {
+            if (!appData.selectedItem) {
+                document.getElementById('stickyTop').style.display = 'none';
+                return;
+            }
+
+            const [article, color] = appData.selectedItem.split('_');
+            const colorPadded = String(color).padStart(6, '0');
+            const cwh = getCWH(appData.stock[appData.selectedItem]||{});
+            const historicArticle = String(parseInt(article.substring(0,2)) - 1).padStart(2, '0') + article.substring(2);
+
+            // Current image
+            const imgUrl = `https://koroshishop.com/cdn/shop/files/${article}_${colorPadded}_1.jpg`;
+            const historicImgUrl = `https://koroshishop.com/cdn/shop/files/${historicArticle}_${colorPadded}_1.jpg`;
+            
+            document.getElementById('mcImage').src = imgUrl;
+            document.getElementById('mcImage').onerror = function() { this.src = historicImgUrl; };
+            
+            // Historical image - try same color first, then generic article image
+            document.getElementById('mcHistImage').src = historicImgUrl;
+            // If exact color not found, try to find any color of the historic article
+            document.getElementById('mcHistImage').onerror = function() { 
+                this.src = `https://koroshishop.com/cdn/shop/files/${historicArticle}_000000_1.jpg`;
+            };
+            
+            const SIZES = ['fldTalla1','fldTalla2','fldTalla3','fldTalla4','fldTalla5','fldTalla6','fldTalla7','fldTalla8','fldTalla9','fldTalla10','fldTalla11','fldTalla12','fldTalla13','fldTalla14','fldTalla15'];
+            const cwhStock = cwh ? SIZES.reduce((a, s) => a + (parseInt(cwh[s]) || 0), 0) : 0;
+            let storesWithItem = 0;
+            Object.values(appData.stores).forEach(store => {
+                if (stockHas(appData.selectedItem, store.id)) storesWithItem++;
+            });
+            const totalStores = Object.keys(appData.stores).length;
+            const storesAvailable = totalStores - storesWithItem;
+
+            document.getElementById('mcArticle').textContent = article;
+            document.getElementById('mcHistArticle').textContent = historicArticle;
+            document.getElementById('mcColor').textContent = colorPadded;
+            document.getElementById('mcStock').textContent = cwhStock;
+            document.getElementById('mcStoresWithItem').textContent = storesWithItem;
+            document.getElementById('mcStoresAvailable').textContent = storesAvailable;
+            document.getElementById('mcSelected').textContent = appData.selectedStores.size;
+
+            document.getElementById('stickyTop').style.display = 'block';
+            updatePackTotal(); // Enable button if stores selected
+        }
+
+        function renderWeekSelector() {
+            if (!appData.selectedItem) return;
+
+            const [sexo, familia] = appData.selectedFamily.split('|');
+            const weeks = new Set();
+
+            appData.salesRaw.forEach(sale => {
+                if (sale.FLDDESCRIFAM === familia) {
+                    weeks.add(parseInt(sale.week));
+                }
+            });
+
+            const sortedWeeks = Array.from(weeks).sort((a, b) => a - b);
+            
+            // Calculate current ISO week
+            const today = new Date();
+            const dayNum = today.getUTCDay() || 7;
+            today.setUTCDate(today.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(today.getUTCFullYear(), 0, 1));
+            const currentWeek = Math.ceil((((today - yearStart) / 86400000) + 1) / 7);
+            
+            // On first load, auto-select: last week, current week, next 3 weeks
+            if (appData.selectedWeeks.size === 0 && sortedWeeks.length > 0) {
+                const defaultWeeks = [currentWeek - 1, currentWeek, currentWeek + 1, currentWeek + 2, currentWeek + 3];
+                defaultWeeks.forEach(w => {
+                    if (sortedWeeks.includes(w)) {
+                        appData.selectedWeeks.add(w);
+                    }
+                });
+                // If not enough weeks available, just select what we have
+                if (appData.selectedWeeks.size === 0) {
+                    sortedWeeks.slice(-5).forEach(w => appData.selectedWeeks.add(w));
+                }
+            }
+
+            const selector = document.getElementById('weekSelector');
+            selector.innerHTML = '';
+
+            sortedWeeks.forEach(week => {
+                const btn = document.createElement('button');
+                btn.className = `week-btn ${appData.selectedWeeks.has(week) ? 'active' : ''}`;
+                let label = `W${week}`;
+                if (week === currentWeek) label = `W${week} (NOW)`;
+                else if (week === currentWeek - 1) label = `W${week} (LW)`;
+                btn.textContent = label;
+                btn.style.fontSize = week === currentWeek ? '0.75em' : '0.7em';
+                btn.style.fontWeight = week === currentWeek ? '700' : '600';
+                btn.onclick = () => toggleWeek(week);
+                selector.appendChild(btn);
+            });
+        }
+
+        function toggleWeek(week) {
+            if (appData.selectedWeeks.has(week)) {
+                appData.selectedWeeks.delete(week);
+            } else {
+                if (appData.selectedWeeks.size >= 5) {
+                    alert('Maximum 5 weeks allowed');
+                    return;
+                }
+                appData.selectedWeeks.add(week);
+            }
+            renderWeekSelector();
+            updateStoreList();
+        }
+
+        function isAllocated(itemKey, storeId) {
+            const [article, color] = itemKey.split('_');
+            const colorPadded = color.padStart(6, '0');
+            return appData.allocations.some(a => 
+                String(a.store) === String(storeId) && 
+                a.article === article && 
+                a.color === colorPadded
+            );
+        }
+
+        function isItemAllocatedAnywhere(itemKey) {
+            const [article, color] = itemKey.split('_');
+            const colorPadded = color.padStart(6, '0');
+            return appData.allocations.some(a => a.article === article && a.color === colorPadded);
+        }
+
+        function updateStoreList() {
+            if (!appData.selectedItem) {
+                document.getElementById('storeControlsSection').style.display = 'none';
+                return;
+            }
+
+            // Multi-item: show UNION of stores eligible for ANY selected item
+            const allItems = (appData.selectedItems && appData.selectedItems.size > 0)
+                ? Array.from(appData.selectedItems)
+                : [appData.selectedItem];
+
+            // Build eligibility: which items is each store eligible for?
+            const storeEligibleForAny = new Set();
+            const storeEligibleItems = {}; // storeId -> Set of itemKeys it can receive
+
+            allItems.forEach(itemKey => {
+                const cwh = getCWH(appData.stock[itemKey]||{});
+                const sexo = (cwh?.fldidSexo || '').toUpperCase().trim();
+                const isKids = ['NIÑO','NIÑA','NINO','NINA','BOY','GIRL'].includes(sexo);
+                Object.values(appData.stores).forEach(store => {
+                    if (store.channel === 'FRANCHISE') return;      // FRANCHISE never in general allocation
+                    if (stockHas(itemKey, store.id)) return; // store already has it
+                    if (isKids && store.kids !== 'SI') return;      // kids rule
+                    storeEligibleForAny.add(store.id);
+                    if (!storeEligibleItems[store.id]) storeEligibleItems[store.id] = new Set();
+                    storeEligibleItems[store.id].add(itemKey);
+                });
+            });
+
+            let stores = Object.values(appData.stores).filter(s => storeEligibleForAny.has(s.id));
+
+            // Cluster filter (area, size, manager, etc.)
+            if (appData.clusterFilter) stores = stores.filter(appData.clusterFilter);
+
+            // Store search filter
+            const searchTerm = document.getElementById('storeSearch')?.value.toLowerCase() || '';
+            if (searchTerm) stores = stores.filter(s => s.id.toLowerCase().includes(searchTerm));
+
+            // "Has sales" filter — per store, check each item it's eligible for
+            // Passes if store had sales for ANY eligible item (historic → subfamily fallback)
+            const hasSalesFilter = document.getElementById('hasSalesFilter')?.checked || false;
+            if (hasSalesFilter && appData.selectedWeeks.size > 0) {
+                const [, fam] = (appData.selectedFamily || '').split('|');
+                stores = stores.filter(store => {
+                    const eligible = storeEligibleItems[store.id] || new Set();
+                    return Array.from(eligible).some(itemKey => {
+                        const [article] = itemKey.split('_');
+                        const histArt = String(parseInt(article.substring(0,2))-1).padStart(2,'0') + article.substring(2);
+                        // Step 1: historic article
+                        if (appData.salesRaw.some(s =>
+                            s.FLDIDALMACEN === store.id && s.FLDIDARTICULO === histArt &&
+                            appData.selectedWeeks.has(s.week) && s.qty > 0)) return true;
+                        // Step 2: FAM+SUBFAMILY fallback
+                        const cwh = getCWH(appData.stock[itemKey]||{});
+                        const subfam = cwh?.fldIdSubTendencia || cwh?.fldidSubFamilia;
+                        if (!subfam || !fam) return false;
+                        return appData.salesRaw.some(s =>
+                            s.FLDIDALMACEN === store.id && s.FLDDESCRIFAM === fam &&
+                            (s.fldIdSubTendencia === subfam || s.fldidSubFamilia === subfam) &&
+                            appData.selectedWeeks.has(s.week) && s.qty > 0);
+                    });
+                });
+            }
+
+            document.getElementById('storeControlsSection').style.display = 'block';
+            renderWeekSelector();
+
+            const [sexo, familia] = appData.selectedFamily.split('|');
+            const [article, color] = appData.selectedItem.split('_');
+            const historicArticle = String(parseInt(article.substring(0,2)) - 1).padStart(2, '0') + article.substring(2);
+            const colorPadded = String(color).padStart(6, '0');
+            
+            const list = document.getElementById('storeList');
+            list.innerHTML = '';
+
+            // Get selected item's subfamily for fallback
+            const itemCwhData = getCWH(appData.stock[appData.selectedItem]||{});
+            const itemSubfam = itemCwhData?.fldIdSubTendencia || itemCwhData?.fldidSubFamilia || null;
+
+            // Pre-calculate total FAM+SUBF sales per store (for percentile ranking)
+            const subfamSalesByStore = {};
+            if (itemSubfam) {
+                appData.salesRaw.forEach(sale => {
+                    if (sale.FLDDESCRIFAM === familia && 
+                        (sale.fldIdSubTendencia === itemSubfam || sale.fldidSubFamilia === itemSubfam) &&
+                        appData.selectedWeeks.has(sale.week)) {
+                        if (!subfamSalesByStore[sale.FLDIDALMACEN]) subfamSalesByStore[sale.FLDIDALMACEN] = 0;
+                        subfamSalesByStore[sale.FLDIDALMACEN] += sale.qty;
+                    }
+                });
+            }
+            // Compute percentile thresholds for HIGH/MED/LOW badges
+            const subfamValues = Object.values(subfamSalesByStore).filter(v => v > 0).sort((a,b) => a-b);
+            const p66 = subfamValues[Math.floor(subfamValues.length * 0.66)] || 0;
+            const p33 = subfamValues[Math.floor(subfamValues.length * 0.33)] || 0;
+
+            stores.forEach(store => {
+                let familyQty = 0;
+                let familySalesLY = 0;
+                let salesByWeek = {};
+                let historicItemSalesLY = 0;
+                let historicSalesByWeek = {};
+
+                // Count DISTINCT FAMILY ITEMS (MCs) in this store - This Year
+                let familyItemsInStore = new Set();
+                Object.entries(appData.stock).forEach(([key, stockData]) => {
+                    const cwhRow = getCWH(stockData);
+                    if (!cwhRow || cwhRow.fldDescriFam !== familia) return;
+                    if (!stockHas(key, store.id)) return;
+                    const storeRow = stockData[store.id] || stockData[Number(store.id)] || stockData[String(store.id)];
+                    if (!storeRow) return;
+                    // Check if this item has stock in this specific store
+                    const sizes = ['fldTalla1','fldTalla2','fldTalla3','fldTalla4','fldTalla5','fldTalla6','fldTalla7','fldTalla8','fldTalla9','fldTalla10','fldTalla11','fldTalla12','fldTalla13','fldTalla14','fldTalla15'];
+                    const hasStock = sizes.some(s => parseInt(storeRow[s]) > 0);
+                    if (hasStock) {
+                        familyItemsInStore.add(key);
+                        familyQty += sizes.reduce((sum, s) => sum + (parseInt(storeRow[s]) || 0), 0);
+                    }
+                });
+                const totalMC = familyItemsInStore.size;
+
+                // Historical and current family sales by week
+                let lyFamilyItems = new Set();
+                appData.salesRaw.forEach(sale => {
+                    if (sale.FLDIDALMACEN === store.id && sale.FLDDESCRIFAM === familia) {
+                        familySalesLY += sale.qty;
+                        if (!salesByWeek[sale.week]) salesByWeek[sale.week] = 0;
+                        salesByWeek[sale.week] += sale.qty;
+                        lyFamilyItems.add(sale.FLDIDARTICULO); // Track distinct items that sold
+                        
+                        // Check if this is the historical item
+                        if (sale.FLDIDARTICULO === historicArticle) {
+                            historicItemSalesLY += sale.qty;
+                            if (!historicSalesByWeek[sale.week]) historicSalesByWeek[sale.week] = 0;
+                            historicSalesByWeek[sale.week] += sale.qty;
+                        }
+                    }
+                });
+                
+                const familyMC = lyFamilyItems.size;
+
+                // Subfamily fallback: used when historic article has zero sales
+                const hasHistoricSales = historicItemSalesLY > 0;
+                const subfamQty = subfamSalesByStore[store.id] || 0;
+                let subfamBadge = '';
+                if (!hasHistoricSales && itemSubfam && subfamQty > 0) {
+                    const tier = subfamQty >= p66 ? 'HIGH' : subfamQty >= p33 ? 'MED' : 'LOW';
+                    const color = tier === 'HIGH' ? '#ffaa00' : tier === 'MED' ? '#00d4ff' : '#888';
+                    const bg = tier === 'HIGH' ? 'rgba(255,170,0,0.15)' : tier === 'MED' ? 'rgba(0,212,255,0.1)' : 'rgba(128,128,128,0.1)';
+                    subfamBadge = `<span style="font-size:0.7em;padding:2px 6px;background:${bg};border:1px solid ${color};border-radius:2px;color:${color};margin-left:6px;">📊 ${itemSubfam} ${tier} (${subfamQty})</span>`;
+                }
+
+                const isHistTop = appData.histTopStores.has(store.id);
+                const isAllocatedStore = appData.selectedItem ? isAllocated(appData.selectedItem, store.id) : false;
+                const card = document.createElement('div');
+                card.className = `store-card ${appData.selectedStores.has(store.id) ? 'selected' : ''} ${isHistTop ? 'hist-top' : ''} ${isAllocatedStore ? 'allocated' : ''}`;
+                
+                // Build weekly sales tables for family and historical item
+                const selectedWeeksSorted = Array.from(appData.selectedWeeks).sort((a, b) => parseInt(a) - parseInt(b));
+                
+                let familyTableHtml = '<table class="store-sales-table"><tr><th>Week</th>';
+                let historicTableHtml = '<table class="store-sales-table"><tr><th>Week</th>';
+                
+                selectedWeeksSorted.forEach(w => {
+                    familyTableHtml += `<th>W${w}</th>`;
+                    historicTableHtml += `<th>W${w}</th>`;
+                });
+                familyTableHtml += '</tr><tr><td class="label">Family Sales</td>';
+                historicTableHtml += '</tr><tr><td class="label">Item Sales</td>';
+                
+                selectedWeeksSorted.forEach(w => {
+                    familyTableHtml += `<td>${salesByWeek[w] || 0}</td>`;
+                    historicTableHtml += `<td>${historicSalesByWeek[w] || 0}</td>`;
+                });
+                familyTableHtml += '</tr></table>';
+                historicTableHtml += '</tr></table>';
+                
+                // Subfamily sales table (weekly) for fallback
+                let subfamTableHtml = '';
+                if (!hasHistoricSales && itemSubfam && subfamQty > 0) {
+                    subfamTableHtml = '<table class="store-sales-table"><tr><th>Week</th>';
+                    selectedWeeksSorted.forEach(w => { subfamTableHtml += `<th>W${w}</th>`; });
+                    subfamTableHtml += `</tr><tr><td class="label">${itemSubfam}</td>`;
+                    selectedWeeksSorted.forEach(w => {
+                        const wSales = appData.salesRaw
+                            .filter(s => s.FLDIDALMACEN === store.id && s.FLDDESCRIFAM === familia &&
+                                (s.fldIdSubTendencia === itemSubfam || s.fldidSubFamilia === itemSubfam) &&
+                                s.week === w)
+                            .reduce((sum, s) => sum + s.qty, 0);
+                        subfamTableHtml += `<td>${wSales}</td>`;
+                    });
+                    subfamTableHtml += '</tr></table>';
+                }
+
+                card.innerHTML = `
+                    <div class="store-id">${store.id}${isHistTop ? ' ⭐' : ''}${isAllocatedStore ? ' <span style="font-size:0.7em;padding:2px 6px;background:rgba(0,255,170,0.2);border:1px solid rgba(0,255,170,0.4);border-radius:2px;color:#00ffaa;">✓ ALLOCATED</span>' : ''}${subfamBadge}</div>
+                    <div class="store-grid">
+                        <div class="store-row"><span class="store-label">Area:</span> <span class="store-value">${store.area}</span></div>
+                        <div class="store-row"><span class="store-label">Manager:</span> <span class="store-value">${store.manager}</span></div>
+                        <div class="store-row"><span class="store-label">Size:</span> <span class="store-value">${store.size}</span></div>
+                        <div class="store-row"><span class="store-label">Transit:</span> <span class="store-value">${store.transit}</span></div>
+                        <div class="store-row"><span class="store-label">This Year MCs:</span> <span class="store-value">${totalMC}</span></div>
+                        <div class="store-row"><span class="store-label">LY Family MCs:</span> <span class="store-value">${familyMC}</span></div>
+                        <div class="store-row"><span class="store-label">Family Stock:</span> <span class="store-value">${familyQty}</span></div>
+                        <div class="store-row"><span class="store-label">Family Sales (LY):</span> <span class="store-value">${familySalesLY}</span></div>
+                    </div>
+                    
+                    <div style="font-size: 0.7em; color: #00d4ff; font-weight: 600; margin-top: 8px; margin-bottom: 4px;">Family Sales (LY)</div>
+                    ${familyTableHtml}
+                    
+                    ${hasHistoricSales ? `
+                        <div style="font-size: 0.7em; color: #FFD700; font-weight: 600; margin-top: 8px; margin-bottom: 4px;">📦 Historical Item: ${historicArticle} - Sales: ${historicItemSalesLY}</div>
+                        ${historicTableHtml}
+                    ` : itemSubfam ? `
+                        <div style="font-size: 0.7em; color: #888; margin-top: 8px; margin-bottom: 2px;">⚠ No LY sales for ${historicArticle} — showing ${familia} / ${itemSubfam} combo</div>
+                        ${subfamTableHtml || '<div style="font-size:0.7em;color:#888;">No subfamily sales in selected weeks</div>'}
+                    ` : `
+                        <div style="font-size: 0.7em; color: #888; margin-top: 8px;">⚠ No historical item sales &amp; no subfamily data</div>
+                    `}
+                    
+                    <button class="store-select-btn ${appData.selectedStores.has(store.id) ? 'selected' : ''}" onclick="selectStoreForAllocation('${store.id}')">
+                        ${appData.selectedStores.has(store.id) ? '✓ Selected' : 'Select'}
+                    </button>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function selectStoreForAllocation(storeId) {
+            if (appData.selectedStores.has(storeId)) {
+                appData.selectedStores.delete(storeId);
+            } else {
+                appData.selectedStores.add(storeId);
+            }
+            updateMCHeader();
+            updateStoreList();
+            updatePackTotal();
+        }
+
+        function selectAllStores() {
+            if (!appData.selectedItem) return;
+
+            // Multi-item: for each item, select all stores that are eligible for it
+            // "Eligible" = doesn't have the item + passes kids rule + passes cluster/search filters
+            const allItems = (appData.selectedItems && appData.selectedItems.size > 0)
+                ? Array.from(appData.selectedItems)
+                : [appData.selectedItem];
+
+            const clusterFilter = appData.clusterFilter;
+            const searchTerm = (document.getElementById('storeSearch')?.value || '').toLowerCase();
+            const [, fam] = (appData.selectedFamily || '').split('|');
+            const hasSalesFilter = document.getElementById('hasSalesFilter')?.checked || false;
+
+            allItems.forEach(itemKey => {
+                const cwh = getCWH(appData.stock[itemKey]||{});
+                const sexo = (cwh?.fldidSexo || '').toUpperCase().trim();
+                const isKids = ['NIÑO','NIÑA','NINO','NINA','BOY','GIRL'].includes(sexo);
+                const [article] = itemKey.split('_');
+                const histArt = String(parseInt(article.substring(0,2))-1).padStart(2,'0') + article.substring(2);
+                const subfam = cwh?.fldIdSubTendencia || cwh?.fldidSubFamilia;
+
+                Object.values(appData.stores).forEach(store => {
+                    // FRANCHISE stores never in general allocation
+                    if (store.channel === 'FRANCHISE') return;
+                    // Already has item
+                    if (stockHas(itemKey, store.id)) return;
+                    // Kids rule
+                    if (isKids && store.kids !== 'SI') return;
+                    // Cluster filter
+                    if (clusterFilter && !clusterFilter(store)) return;
+                    // Search filter
+                    if (searchTerm && !store.id.toLowerCase().includes(searchTerm)) return;
+                    // Has sales filter — per this item vs this store
+                    if (hasSalesFilter && appData.selectedWeeks.size > 0) {
+                        const hasHist = appData.salesRaw.some(s =>
+                            s.FLDIDALMACEN === store.id && s.FLDIDARTICULO === histArt &&
+                            appData.selectedWeeks.has(s.week) && s.qty > 0);
+                        if (!hasHist) {
+                            if (!subfam || !fam) return;
+                            const hasSubfam = appData.salesRaw.some(s =>
+                                s.FLDIDALMACEN === store.id && s.FLDDESCRIFAM === fam &&
+                                (s.fldIdSubTendencia === subfam || s.fldidSubFamilia === subfam) &&
+                                appData.selectedWeeks.has(s.week) && s.qty > 0);
+                            if (!hasSubfam) return;
+                        }
+                    }
+                    appData.selectedStores.add(store.id);
+                });
+            });
+
+            updateMCHeader();
+            updateStoreList();
+            updatePackTotal();
+        }
+
+        function filterStores() {
+            updateStoreList();
+        }
+
+        function renderClusters() {
+            const areas = new Set();
+            const sizes = new Set();
+            const managers = new Set();
+            const transits = new Set();
+            const channels = new Set();
+            const kids = new Set();
+
+            Object.values(appData.stores).forEach(store => {
+                if (store.area && store.area !== 'N/A') areas.add(store.area);
+                if (store.size && store.size !== 'N/A') sizes.add(store.size);
+                if (store.manager && store.manager !== 'N/A') managers.add(store.manager);
+                if (store.transit && store.transit !== 'N/A') transits.add(store.transit);
+                if (store.channel) channels.add(store.channel);
+                if (store.kids && store.kids !== 'N/A') kids.add(store.kids);
+            });
+
+            const createGroup = (containerId, items, type) => {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                Array.from(items).sort().forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.className = 'cluster-btn';
+                    btn.textContent = item;
+                    btn.onclick = () => {
+                        // Check if this filter type has EXCLUDE enabled
+                        const excludeCheckbox = document.getElementById(`${type}Exclude`);
+                        const isExclude = excludeCheckbox && excludeCheckbox.checked;
+                        
+                        filterByCluster(store => {
+                            let matches = false;
+                            if (type === 'area') matches = store.area === item;
+                            if (type === 'size') matches = store.size === item;
+                            if (type === 'manager') matches = store.manager === item;
+                            if (type === 'transit') matches = store.transit === item;
+                            if (type === 'channel') matches = store.channel === item;
+                            if (type === 'kids') matches = store.kids === item;
+                            
+                            return isExclude ? !matches : matches;
+                        });
+                    };
+                    container.appendChild(btn);
+                });
+            };
+
+            if (areas.size > 0) {
+                createGroup('areaClusters', areas, 'area');
+                document.getElementById('areaGroup').style.display = 'block';
+            }
+            if (sizes.size > 0) {
+                createGroup('sizeClusters', sizes, 'size');
+                document.getElementById('sizeGroup').style.display = 'block';
+            }
+            if (managers.size > 0) {
+                createGroup('managerClusters', managers, 'manager');
+                document.getElementById('managerGroup').style.display = 'block';
+            }
+            if (transits.size > 0) {
+                createGroup('transitClusters', transits, 'transit');
+                document.getElementById('transitGroup').style.display = 'block';
+            }
+            if (channels.size > 0) {
+                createGroup('channelClusters', channels, 'channel');
+                document.getElementById('channelGroup').style.display = 'block';
+            }
+            if (kids.size > 0) {
+                createGroup('kidsClusters', kids, 'kids');
+                document.getElementById('kidsGroup').style.display = 'block';
+            }
+        }
+
+        function filterByCluster(filterFn) {
+            appData.clusterFilter = filterFn;
+            updateStoreList();
+        }
+
+        function selectPackType(type) {
+            appData.packType = type;
+            document.querySelectorAll('.pack-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (type === 'single') {
+                document.getElementById('singlePack').style.display = 'block';
+                document.getElementById('customPack').style.display = 'none';
+                appData.pack = [1, 2, 2, 2, 2, 1];
+            } else {
+                document.getElementById('singlePack').style.display = 'none';
+                document.getElementById('customPack').style.display = 'block';
+                renderPackInputs();
+            }
+        }
+
+        function renderPackInputs() {
+            const container = document.getElementById('packInputs');
+            container.innerHTML = '';
+            const sizes = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'];
+            const defaults = [1, 2, 2, 2, 2, 1];
+
+            sizes.forEach((size, idx) => {
+                const div = document.createElement('div');
+                div.className = 'size-input';
+                const label = document.createElement('div');
+                label.className = 'size-label';
+                label.textContent = size;
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.value = appData.pack[idx] || defaults[idx];
+                input.min = '0';
+                input.onchange = () => {
+                    appData.pack[idx] = parseInt(input.value) || 0;
+                    updatePackTotal();
+                };
+                div.appendChild(label);
+                div.appendChild(input);
+                container.appendChild(div);
+            });
+
+            updatePackTotal();
+        }
+
+        function updatePackTotal() {
+            const total = appData.pack.reduce((a, b) => a + b, 0);
+            document.getElementById('packTotal').textContent = total;
+            document.getElementById('allocateBtn').disabled = appData.selectedStores.size === 0 || total === 0;
+        }
+
+        function getPackForArticle(article) {
+            const packRow = appData.packs[String(article).trim()];
+            if (packRow) {
+                // packs.xlsx columns: FLDTALLA1-FLDTALLA6
+                const s1 = parseInt(packRow['FLDTALLA1'] ?? packRow['S1'] ?? packRow['fldTalla1']) || 0;
+                const s2 = parseInt(packRow['FLDTALLA2'] ?? packRow['S2'] ?? packRow['fldTalla2']) || 0;
+                const s3 = parseInt(packRow['FLDTALLA3'] ?? packRow['S3'] ?? packRow['fldTalla3']) || 0;
+                const s4 = parseInt(packRow['FLDTALLA4'] ?? packRow['S4'] ?? packRow['fldTalla4']) || 0;
+                const s5 = parseInt(packRow['FLDTALLA5'] ?? packRow['S5'] ?? packRow['fldTalla5']) || 0;
+                const s6 = parseInt(packRow['FLDTALLA6'] ?? packRow['S6'] ?? packRow['fldTalla6']) || 0;
+                return [s1, s2, s3, s4, s5, s6].join('');
+            }
+            return appData.pack.join(''); // fallback to UI pack
+        }
+
+        function allocateStores() {
+            let itemsToAllocate = [];
+            if (appData.selectedItems && appData.selectedItems.size > 0) {
+                itemsToAllocate = Array.from(appData.selectedItems);
+            } else if (appData.selectedItem) {
+                itemsToAllocate = [appData.selectedItem];
+            }
+            
+            if (appData.selectedStores.size === 0 || itemsToAllocate.length === 0) {
+                alert('Select items and stores');
+                return;
+            }
+
+            const [sexo, familia] = appData.selectedFamily.split('|');
+            const hasSalesFilter = document.getElementById('hasSalesFilter')?.checked || false;
+            let allocCount = 0;
+            let skippedDuplicate = 0;
+            let skippedHasStock = 0;
+            let skippedKids = 0;
+            let skippedNoSales = 0;
+
+            itemsToAllocate.forEach(itemKey => {
+                const [article, color] = itemKey.split('_');
+                const colorPadded = String(color).padStart(6, '0');
+                const historicArticle = String(parseInt(article.substring(0,2)) - 1).padStart(2, '0') + article.substring(2);
+
+                appData.selectedStores.forEach(storeId => {
+                    // Skip if already allocated (duplicate prevention)
+                    if (isAllocated(itemKey, storeId)) {
+                        skippedDuplicate++;
+                        return;
+                    }
+
+                    // Skip if store already has this item in stock
+                    if (stockHas(itemKey, storeId)) {
+                        skippedHasStock++;
+                        return;
+                    }
+
+                    // KIDS RULE
+                    const itemCwh = getCWH(appData.stock[itemKey]||{});
+                    const itemSexo = (itemCwh?.fldidSexo || '').toUpperCase().trim();
+                    const isKidsItem = ['NIÑO','NIÑA','NINO','NINA','BOY','GIRL'].includes(itemSexo);
+                    if (isKidsItem && appData.stores[storeId]?.kids !== 'SI') {
+                        skippedKids++;
+                        return;
+                    }
+
+                    // Has sales filter
+                    if (hasSalesFilter && appData.selectedWeeks.size > 0) {
+                        const hadSales = appData.salesRaw.some(sale =>
+                            sale.FLDIDALMACEN === storeId &&
+                            sale.FLDIDARTICULO === historicArticle &&
+                            appData.selectedWeeks.has(sale.week) &&
+                            sale.qty > 0
+                        );
+                        if (!hadSales) {
+                            skippedNoSales++;
+                            return;
+                        }
+                    }
+
+                    const store = appData.stores[storeId];
+                    appData.allocations.push({
+                        store: storeId, area: store.area, manager: store.manager,
+                        article, color: colorPadded, pack: getPackForArticle(article), family: familia
+                    });
+                    allocCount++;
+                });
+            });
+
+            let msg = `✓ Allocated ${allocCount} line(s)`;
+            if (itemsToAllocate.length > 1) msg += ` (${itemsToAllocate.length} items × ${appData.selectedStores.size} stores)`;
+            if (skippedDuplicate > 0) msg += `\n⚠ ${skippedDuplicate} skipped — already allocated`;
+            if (skippedHasStock > 0) msg += `\n⚠ ${skippedHasStock} skipped — store already has item in stock`;
+            if (skippedKids > 0) msg += `\n⚠ ${skippedKids} skipped — kids rule (store has no kids section)`;
+            if (skippedNoSales > 0) msg += `\n⚠ ${skippedNoSales} skipped — no LY sales in selected weeks`;
+            alert(msg);
+            appData.selectedStores.clear();
+            updateMCHeader();
+            updateStoreList();
+        }
+
+        function exportAllocations() {
+            if (appData.allocations.length === 0) {
+                alert('No allocations to export');
+                return;
+            }
+            
+            const headers = ['Store', 'Area', 'Manager', 'Article', 'Color', 'Pack S1', 'Pack S2', 'Pack S3', 'Pack S4', 'Pack S5', 'Pack S6', 'Family'];
+            
+            const rows = appData.allocations.map(a => {
+                // Always re-lookup pack at export time to get the most accurate values
+                const freshPack = getPackForArticle(a.article);
+                const packStr = String(freshPack || a.pack || '122221');
+                const sizes = packStr.split('').map(s => parseInt(s));
+                while (sizes.length < 6) sizes.push(0);
+                return [
+                    a.store, a.area, a.manager, a.article, a.color,
+                    sizes[0] ?? 1,
+                    sizes[1] ?? 2,
+                    sizes[2] ?? 2,
+                    sizes[3] ?? 2,
+                    sizes[4] ?? 2,
+                    sizes[5] ?? 1,
+                    a.family
+                ];
+            });
+            
+            const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Allocations');
+            XLSX.writeFile(wb, `allocations_${new Date().toISOString().split('T')[0]}.csv`);
+            
+            alert(`✅ Exported ${appData.allocations.length} allocations`);
+        }
+        
+        function clearAllocations() {
+            if (appData.allocations.length === 0) {
+                alert('No allocations to clear');
+                return;
+            }
+            
+            if (confirm(`Are you sure? This will clear ${appData.allocations.length} allocations. You won't need to re-upload files.`)) {
+                appData.allocations = [];
+                appData.selectedStores.clear();
+                
+                // Reset UI but keep data loaded
+                updateStoreList();
+                
+                alert('✅ Allocations cleared. Ready to start fresh!');
+            }
+        }
+
+        function switchView(view) {
+            appData.currentView = view;
+            
+            // Update button styles
+            if (view === 'family') {
+                document.getElementById('familyViewBtn').style.background = 'rgba(0, 212, 255, 0.3)';
+                document.getElementById('familyViewBtn').style.borderColor = 'rgba(0, 212, 255, 0.6)';
+                document.getElementById('familyViewBtn').style.boxShadow = '0 0 10px rgba(0, 212, 255, 0.3)';
+                document.getElementById('storeViewBtn').style.background = 'rgba(0, 212, 255, 0.1)';
+                document.getElementById('storeViewBtn').style.borderColor = 'rgba(0, 212, 255, 0.2)';
+                document.getElementById('storeViewBtn').style.boxShadow = 'none';
+            } else {
+                document.getElementById('storeViewBtn').style.background = 'rgba(0, 212, 255, 0.3)';
+                document.getElementById('storeViewBtn').style.borderColor = 'rgba(0, 212, 255, 0.6)';
+                document.getElementById('storeViewBtn').style.boxShadow = '0 0 10px rgba(0, 212, 255, 0.3)';
+                document.getElementById('familyViewBtn').style.background = 'rgba(0, 212, 255, 0.1)';
+                document.getElementById('familyViewBtn').style.borderColor = 'rgba(0, 212, 255, 0.2)';
+                document.getElementById('familyViewBtn').style.boxShadow = 'none';
+            }
+            
+            if (view === 'family') {
+                renderFamilies();
+                document.getElementById('sidebarLeft').style.display = 'block';
+                document.getElementById('storeViewSection').style.display = 'none';
+                document.getElementById('familyViewFilters').style.display = 'block';
+                document.getElementById('storeViewFilters').style.display = 'none';
+                document.getElementById('stickyTop').style.display = 'none';
+                document.getElementById('centerStoreView').style.display = 'none';
+                const cs = document.getElementById('clustersSection');
+                if (cs) cs.style.display = 'none';
+            } else {
+                renderStoreView();
+                document.getElementById('sidebarLeft').style.display = 'none';
+                document.getElementById('storeViewSection').style.display = 'block';
+                document.getElementById('familyViewFilters').style.display = 'none';
+                document.getElementById('storeViewFilters').style.display = 'block';
+                document.getElementById('stickyTop').style.display = 'none';
+                document.getElementById('centerStoreView').style.display = appData.selectedStore ? 'block' : 'none';
+                const cs = document.getElementById('clustersSection');
+                if (cs) cs.style.display = 'none';
+                const scs = document.getElementById('storeControlsSection');
+                if (scs) scs.style.display = 'none';
+                initStoreViewEvents();
+            }
+        }
+
+        // ── STORE VIEW ───────────────────────────────────────────────────
+        // Layout mirrors Family View:
+        //   LEFT sidebar  = store list
+        //   CENTER        = sticky store+item info banner  +  items grid
+        //   (clusters/right panel hidden; store view has its own filters in storeViewFilters)
+
+        function renderStoreView() {
+            // LEFT: store list (same sidebar as families)
+            const stores = Object.values(appData.stores).sort((a,b) => String(a.id).localeCompare(String(b.id), undefined, {numeric: true}));
+            let html = '<div style="padding:6px 8px;font-weight:700;color:#00d4ff;font-size:0.8em;margin-bottom:6px;">Stores</div>';
+            stores.forEach(store => {
+                const isSel = appData.selectedStore === store.id;
+                html += `<div onclick="selectStoreForView('${store.id}')" style="padding:6px 8px;cursor:pointer;border-left:3px solid ${isSel?'#00d4ff':'transparent'};background:${isSel?'rgba(0,212,255,0.1)':'transparent'};margin-bottom:2px;">
+                    <div style="font-size:0.78em;font-weight:600;color:${isSel?'#00d4ff':'#ccc'};">${store.id}</div>
+                    <div style="font-size:0.65em;color:#888;">${store.area}</div>
+                </div>`;
+            });
+            document.getElementById('storeViewSection').innerHTML = html;
+            // CENTER
+            if (appData.selectedStore) {
+                document.getElementById('centerStoreView').style.display = 'block';
+                renderStoreViewContent();
+            }
+        }
+
+        function selectStoreForView(storeId) {
+            appData.selectedStore = storeId;
+            appData.selectedItems.clear();
+            appData.svSelectedItem = null;
+            appData.svSelectedFamily = null;
+            renderStoreView();
+            initStoreViewEvents();
+        }
+
+        function getStoreStats(storeId) {
+            const SIZES = ['fldTalla1','fldTalla2','fldTalla3','fldTalla4','fldTalla5','fldTalla6','fldTalla7','fldTalla8','fldTalla9','fldTalla10','fldTalla11','fldTalla12','fldTalla13','fldTalla14','fldTalla15'];
+            let tyMCs=0, tyStock=0, lyMCsSet=new Set(), lySales=0, lySalesByWeek={}, familyStats={};
+            Object.entries(appData.stock).forEach(([key, stockData]) => {
+                const row = stockData[storeId];
+                if (!row) return;
+                const familia = (getCWH(stockData)||row).fldDescriFam||'UNKNOWN';
+                if (!familyStats[familia]) familyStats[familia]={tyMCs:0,tyStock:0,lyMCsSet:new Set(),lySales:0,lySalesByWeek:{}};
+                tyMCs++; familyStats[familia].tyMCs++;
+                const qty = SIZES.reduce((s,f)=>s+(parseInt(row[f])||0),0);
+                tyStock+=qty; familyStats[familia].tyStock+=qty;
+            });
+            appData.salesRaw.forEach(sale => {
+                if (sale.FLDIDALMACEN!==storeId) return;
+                lyMCsSet.add(sale.FLDIDARTICULO); lySales+=sale.qty;
+                lySalesByWeek[sale.week]=(lySalesByWeek[sale.week]||0)+sale.qty;
+                const fam=sale.FLDDESCRIFAM||'';
+                if (fam&&familyStats[fam]) {
+                    familyStats[fam].lyMCsSet.add(sale.FLDIDARTICULO);
+                    familyStats[fam].lySales+=sale.qty;
+                    familyStats[fam].lySalesByWeek[sale.week]=(familyStats[fam].lySalesByWeek[sale.week]||0)+sale.qty;
+                }
+            });
+            return {tyMCs,tyStock,lyMCs:lyMCsSet.size,lySales,lySalesByWeek,familyStats};
+        }
+
+        function svWeekRow(salesByWeek) {
+            const weeks = Array.from(appData.selectedWeeks).sort((a,b)=>a-b);
+            if (!weeks.length) return '';
+            let t = '<tr>';
+            weeks.forEach(w => { t+=`<td style="padding:2px 6px;text-align:center;color:#00d4ff;font-weight:700;">${salesByWeek[w]||0}</td>`; });
+            return t+'</tr>';
+        }
+        function svWeekHeader() {
+            const weeks = Array.from(appData.selectedWeeks).sort((a,b)=>a-b);
+            if (!weeks.length) return '';
+            let t = '<tr>';
+            weeks.forEach(w => { t+=`<td style="padding:2px 6px;text-align:center;color:#888;font-size:0.85em;">W${w}</td>`; });
+            return t+'</tr>';
+        }
+
+        function renderStoreViewContent() {
+            const store = appData.stores[appData.selectedStore];
+            if (!store) return;
+            const stats = getStoreStats(appData.selectedStore);
+            const SIZES = ['fldTalla1','fldTalla2','fldTalla3','fldTalla4','fldTalla5','fldTalla6','fldTalla7','fldTalla8','fldTalla9','fldTalla10','fldTalla11','fldTalla12','fldTalla13','fldTalla14','fldTalla15'];
+
+            // Filters
+            const colorF  = (document.getElementById('colorFilter')?.value||'').toLowerCase().trim();
+            const familyF = (document.getElementById('familyFilter')?.value||'').toLowerCase().trim();
+            const articleF= (document.getElementById('storeArticleFilter')?.value||'').toLowerCase().trim();
+            const selFam  = appData.svSelectedFamily;
+
+            // Build missing items by family (CWH stock only, ≥3 sizes)
+            const missingByFamily = {};
+            const storeIsKids = appData.stores[appData.selectedStore]?.kids === 'SI';
+            Object.entries(appData.stock).forEach(([key, stockData]) => {
+                if (stockData[appData.selectedStore]) return;
+                const cwh = getCWH(stockData);
+                if (!cwh) return;
+                if (!passesMinSizesRule(cwh)) return;
+                // KIDS RULE: only show kids items if this store is a kids store
+                const itemSexo = (cwh.fldidSexo||'').toUpperCase().trim();
+                const isKidsItem = ['NIÑO','NIÑA','NINO','NINA','BOY','GIRL'].includes(itemSexo);
+                if (isKidsItem && !storeIsKids) return;
+                const familia = cwh.fldDescriFam||'UNKNOWN';
+                if (!missingByFamily[familia]) missingByFamily[familia]=[];
+                missingByFamily[familia].push({key, article:key.split('_')[0], color:key.split('_')[1], familia});
+            });
+
+            let html = '';
+
+            // ── STICKY TOP: store KPIs ──────────────────────────────────────
+            const weeks = Array.from(appData.selectedWeeks).sort((a,b)=>a-b);
+            html += `<div style="position:sticky;top:0;z-index:50;background:rgba(10,10,30,0.97);border-bottom:1px solid rgba(0,212,255,0.2);padding:10px 14px;margin-bottom:0;">
+                <div style="display:grid;grid-template-columns:auto auto auto auto 1fr;gap:16px;align-items:center;flex-wrap:wrap;">
+                    <div><div style="color:#888;font-size:0.68em;">Store</div><div style="color:#00d4ff;font-weight:700;font-size:1em;">${store.id}</div><div style="color:#888;font-size:0.68em;">${store.area} · ${store.manager}</div></div>
+                    <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(0,212,255,0.2);border-radius:4px;padding:6px 12px;text-align:center;"><div style="color:#888;font-size:0.65em;">TY MCs</div><div style="color:#00d4ff;font-weight:700;font-size:1.2em;">${stats.tyMCs}</div></div>
+                    <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(0,212,255,0.2);border-radius:4px;padding:6px 12px;text-align:center;"><div style="color:#888;font-size:0.65em;">LY MCs</div><div style="color:#00d4ff;font-weight:700;font-size:1.2em;">${stats.lyMCs}</div></div>
+                    <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(0,212,255,0.2);border-radius:4px;padding:6px 12px;text-align:center;"><div style="color:#888;font-size:0.65em;">LY Sales</div><div style="color:#00d4ff;font-weight:700;font-size:1.2em;">${stats.lySales}</div></div>
+                    ${weeks.length ? `<div><div style="color:#888;font-size:0.65em;margin-bottom:3px;">Weekly Sales LY</div><table style="border-collapse:collapse;font-size:0.78em;">${svWeekHeader()}${svWeekRow(stats.lySalesByWeek)}</table></div>` : ''}
+                </div>
+            </div>`;
+
+            // ── ITEM DETAIL PANEL (sticky below KPIs when item selected) ───
+            const svItem = appData.svSelectedItem;
+            if (svItem) {
+                const [article, color] = svItem.split('_');
+                const cp = color.padStart(6,'0');
+                const histArticle = String(parseInt(article.substring(0,2))-1).padStart(2,'0')+article.substring(2);
+                const imgUrl = `https://koroshishop.com/cdn/shop/files/${article}_${cp}_1.jpg`;
+                const histImgUrl = `https://koroshishop.com/cdn/shop/files/${histArticle}_${cp}_1.jpg`;
+                const cwhRow = getCWH(appData.stock[svItem]||{});
+                const cwhStock = cwhRow ? SIZES.reduce((s,f)=>s+(parseInt(cwhRow[f])||0),0) : 0;
+                const storesWithIt = Object.values(appData.stores).filter(store=>stockHas(svItem, store.id)).length;
+                const totalStores = Object.keys(appData.stores).length;
+                const itemLySalesByWeek={}, itemLySalesTotal={val:0};
+                appData.salesRaw.forEach(sale=>{
+                    if(sale.FLDIDALMACEN===appData.selectedStore && sale.FLDIDARTICULO===histArticle){
+                        itemLySalesByWeek[sale.week]=(itemLySalesByWeek[sale.week]||0)+sale.qty;
+                        itemLySalesTotal.val+=sale.qty;
+                    }
+                });
+                const isSel = appData.selectedItems.has(svItem);
+                html += `<div style="position:sticky;top:72px;z-index:49;background:rgba(10,10,30,0.97);border-bottom:2px solid rgba(0,212,255,0.3);padding:10px 14px;">
+                    <div style="display:grid;grid-template-columns:80px 80px 1fr auto;gap:12px;align-items:start;">
+                        <div style="text-align:center;">
+                            <img src="${imgUrl}" onerror="this.src='${histImgUrl}'" style="width:72px;height:88px;object-fit:contain;background:rgba(0,0,0,0.3);border-radius:3px;">
+                            <div style="font-size:0.6em;color:#888;margin-top:2px;">Current</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <img src="${histImgUrl}" style="width:72px;height:88px;object-fit:contain;background:rgba(0,0,0,0.3);border-radius:3px;" onerror="this.style.opacity=0.2">
+                            <div style="font-size:0.6em;color:#ffaa00;margin-top:2px;">LY: ${histArticle}</div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                            <div><div style="color:#888;font-size:0.65em;">Article</div><div style="color:#00d4ff;font-weight:600;font-size:0.85em;">${article}_${cp}</div></div>
+                            <div><div style="color:#888;font-size:0.65em;">CWH Stock</div><div style="color:#00d4ff;font-weight:700;font-size:1.1em;">${cwhStock}</div></div>
+                            <div><div style="color:#888;font-size:0.65em;">In Stores</div><div style="color:#00d4ff;font-weight:700;font-size:1.1em;">${storesWithIt}/${totalStores}</div></div>
+                            <div><div style="color:#888;font-size:0.65em;">LY Sales (this store)</div><div style="color:#00d4ff;font-weight:600;">${itemLySalesTotal.val}</div></div>
+                            ${weeks.length ? `<div style="grid-column:span 2;"><div style="color:#888;font-size:0.65em;margin-bottom:3px;">LY Item Sales by Week</div><table style="border-collapse:collapse;font-size:0.78em;">${svWeekHeader()}${svWeekRow(itemLySalesByWeek)}</table></div>` : ''}
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+                            <button class="sv-close-btn" style="padding:3px 8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:3px;color:#888;cursor:pointer;font-size:0.72em;">✕</button>
+                            <button class="sv-toggle-btn" data-key="${svItem}" style="padding:6px 12px;background:${isSel?'rgba(0,212,255,0.3)':'rgba(0,0,0,0.3)'};border:1px solid rgba(0,212,255,0.4);border-radius:3px;color:#00d4ff;cursor:pointer;font-weight:600;font-size:0.8em;white-space:nowrap;">${isSel?'✓ Selected':'+ Select'}</button>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            // ── FAMILY SECTIONS ─────────────────────────────────────────────
+            html += '<div style="padding:10px 14px;">';
+
+            // Family filter tabs (from the missing families)
+            const allFamilies = Object.keys(missingByFamily).sort();
+            html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">';
+            html += `<button class="sv-fam-btn" data-fam="ALL" style="padding:3px 10px;font-size:0.72em;border-radius:2px;border:1px solid ${!selFam?'rgba(0,212,255,0.5)':'rgba(0,212,255,0.2)'};background:${!selFam?'rgba(0,212,255,0.2)':'transparent'};color:#00d4ff;cursor:pointer;">ALL</button>`;
+            allFamilies.forEach(fam => {
+                const active = selFam===fam;
+                const count = missingByFamily[fam]?.length||0;
+                html += `<button class="sv-fam-btn" data-fam="${fam}" style="padding:3px 10px;font-size:0.72em;border-radius:2px;border:1px solid ${active?'rgba(0,212,255,0.5)':'rgba(0,212,255,0.2)'};background:${active?'rgba(0,212,255,0.2)':'transparent'};color:#00d4ff;cursor:pointer;">${fam} (${count})</button>`;
+            });
+            html += '</div>';
+
+            // Items grid
+            let totalDisplayed = 0;
+            const familiesToShow = selFam ? [selFam] : allFamilies;
+
+            familiesToShow.forEach(familia => {
+                let items = (missingByFamily[familia]||[]).slice();
+                if (familyF && !familia.toLowerCase().includes(familyF)) return;
+                if (colorF)   items = items.filter(i=>i.color.toLowerCase().includes(colorF));
+                if (articleF) items = items.filter(i=>i.article.toLowerCase().includes(articleF));
+                if (!items.length) return;
+
+                const fs = stats.familyStats[familia]||{tyMCs:0,tyStock:0,lyMCsSet:new Set(),lySales:0,lySalesByWeek:{}};
+                const lyMCsCount = fs.lyMCsSet?fs.lyMCsSet.size:0;
+
+                // Build comma-separated list of item keys for this family (for Select All)
+                const familyItemKeys = items.map(i => i.key).join(',');
+
+                html += `<div style="margin-bottom:16px;">
+                    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:6px 10px;background:rgba(0,0,0,0.3);border-radius:4px;margin-bottom:8px;font-size:0.78em;">
+                        <span style="color:#00d4ff;font-weight:700;">${familia}</span>
+                        <span style="color:#888;">TY MCs: <b style="color:#00d4ff;">${fs.tyMCs}</b></span>
+                        <span style="color:#888;">TY Stock: <b style="color:#00d4ff;">${fs.tyStock}</b></span>
+                        <span style="color:#888;">LY MCs: <b style="color:#00d4ff;">${lyMCsCount}</b></span>
+                        <span style="color:#888;">LY Sales: <b style="color:#00d4ff;">${fs.lySales}</b></span>
+                        <span style="color:#888;">Missing: <b style="color:#ffaa00;">${items.length}</b></span>
+                        ${weeks.length ? weeks.map(w=>`<span style="color:#888;">W${w}: <b style="color:#00d4ff;">${fs.lySalesByWeek[w]||0}</b></span>`).join('') : ''}
+                        <button class="sv-selectall-fam-btn" data-keys="${familyItemKeys}" style="margin-left:auto;padding:3px 10px;font-size:0.75em;background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.4);border-radius:2px;color:#00d4ff;cursor:pointer;font-weight:600;white-space:nowrap;">✓ Select All (${items.length})</button>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;">`;
+
+                items.forEach(item => {
+                    totalDisplayed++;
+                    const cp = item.color.padStart(6,'0');
+                    const imgUrl = `https://koroshishop.com/cdn/shop/files/${item.article}_${cp}_1.jpg`;
+                    const histArt = String(parseInt(item.article.substring(0,2))-1).padStart(2,'0')+item.article.substring(2);
+                    const histImg = `https://koroshishop.com/cdn/shop/files/${histArt}_${cp}_1.jpg`;
+                    const cwhRow = getCWH(appData.stock[item.key]||{});
+                    const cwhQty = cwhRow ? SIZES.reduce((s,f)=>s+(parseInt(cwhRow[f])||0),0):0;
+                    const storesWithIt = Object.values(appData.stores).filter(store=>stockHas(item.key, store.id)).length;
+                    const totalStores = Object.keys(appData.stores).length;
+                    const isSel = appData.selectedItems.has(item.key);
+                    const isActive = appData.svSelectedItem===item.key;
+                    const isAlloc = isAllocated(item.key, appData.selectedStore);
+                    const ayLive = appData.ayLive ? appData.ayLive.has(item.key) : null;
+                    const zLive  = appData.zalandoLive ? appData.zalandoLive.has(item.key) : null;
+
+                    html += `<div class="sv-item-card" data-key="${item.key}" style="cursor:pointer;padding:6px;border-radius:4px;text-align:center;position:relative;
+                        border:${isActive?'2px solid #ffaa00':isAlloc?'2px solid #00ffaa':isSel?'2px solid #00d4ff':'1px solid rgba(0,212,255,0.2)'};
+                        background:${isActive?'rgba(255,170,0,0.1)':isAlloc?'rgba(0,255,170,0.08)':isSel?'rgba(0,212,255,0.12)':'rgba(0,0,0,0.2)'};">
+                        <img src="${imgUrl}" onerror="this.src='${histImg}'" style="width:100%;height:70px;object-fit:contain;">
+                        <div style="position:absolute;bottom:26px;right:2px;background:rgba(0,0,0,0.75);color:#00d4ff;padding:1px 3px;border-radius:2px;font-size:0.52em;font-weight:600;line-height:1.4;text-align:right;">${storesWithIt}/${totalStores}<br>▣${cwhQty}</div>
+                        <div style="font-size:0.6em;color:#00d4ff;margin-top:2px;">${item.article}_${cp}</div>
+                        ${isAlloc ? '<div style="font-size:0.55em;color:#00ffaa;font-weight:600;">✓ ALLOCATED</div>' : ''}
+                        <div style="display:flex;gap:2px;justify-content:center;flex-wrap:wrap;margin-top:2px;">
+                            ${ayLive===true?'<span style="font-size:0.5em;padding:1px 3px;background:rgba(0,255,170,0.2);border:1px solid rgba(0,255,170,0.4);border-radius:2px;color:#00ffaa;">AY</span>':ayLive===false?'<span style="font-size:0.5em;padding:1px 3px;background:rgba(255,100,100,0.1);border:1px solid rgba(255,100,100,0.3);border-radius:2px;color:#ff6464;">AY✗</span>':''}
+                            ${zLive===true?'<span style="font-size:0.5em;padding:1px 3px;background:rgba(255,170,0,0.2);border:1px solid rgba(255,170,0,0.4);border-radius:2px;color:#ffaa00;">ZA</span>':zLive===false?'<span style="font-size:0.5em;padding:1px 3px;background:rgba(255,100,100,0.1);border:1px solid rgba(255,100,100,0.3);border-radius:2px;color:#ff6464;">ZA✗</span>':''}
+                        </div>
+                    </div>`;
+                });
+
+                html += '</div></div>';
+            });
+
+            // ── STICKY BOTTOM: allocate bar ─────────────────────────────────
+            html += `</div><div style="position:sticky;bottom:0;background:rgba(10,10,30,0.95);border-top:1px solid rgba(0,212,255,0.25);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="color:${appData.selectedItems.size>0?'#ffaa00':'#888'};font-weight:600;font-size:0.85em;">${appData.selectedItems.size>0?appData.selectedItems.size+' items selected':'Click items to select · Click+drag or click multiple'}</div>
+                <div style="display:flex;gap:8px;">
+                    ${appData.selectedItems.size>0?`<button class="sv-alloc-btn" data-store="${appData.selectedStore}" style="padding:7px 14px;background:rgba(0,212,255,0.3);border:1px solid rgba(0,212,255,0.5);border-radius:3px;color:#00d4ff;cursor:pointer;font-weight:700;">✓ Allocate ${appData.selectedItems.size} to ${appData.selectedStore}</button>`:''}
+                    <button class="sv-export-btn" style="padding:7px 14px;background:rgba(60,180,60,0.3);border:1px solid rgba(60,180,60,0.5);border-radius:3px;color:#4dff4d;cursor:pointer;font-weight:700;">📥 Export (${appData.allocations.length})</button>
+                </div>
+            </div>`;
+
+            document.getElementById('centerStoreView').innerHTML = html;
+        }
+
+        function initStoreViewEvents() {
+            const container = document.getElementById('centerStoreView');
+            if (container._svListenerAttached) return;
+            container._svListenerAttached = true;
+            container.addEventListener('click', function(e) {
+                // Family filter tab
+                const famBtn = e.target.closest('.sv-fam-btn');
+                if (famBtn) {
+                    const fam = famBtn.getAttribute('data-fam');
+                    appData.svSelectedFamily = fam==='ALL' ? null : fam;
+                    renderStoreViewContent(); return;
+                }
+                // Select All for a family
+                const selAllBtn = e.target.closest('.sv-selectall-fam-btn');
+                if (selAllBtn) {
+                    const keys = selAllBtn.getAttribute('data-keys').split(',').filter(Boolean);
+                    keys.forEach(k => appData.selectedItems.add(k));
+                    renderStoreViewContent(); return;
+                }
+                // Item card — open detail (single click)
+                const card = e.target.closest('.sv-item-card');
+                if (card) { svSelectItem(card.getAttribute('data-key')); return; }
+                // Toggle select (from detail panel button)
+                const toggleBtn = e.target.closest('.sv-toggle-btn');
+                if (toggleBtn) { toggleStoreViewItem(toggleBtn.getAttribute('data-key')); return; }
+                // Allocate
+                const allocBtn = e.target.closest('.sv-alloc-btn');
+                if (allocBtn) { allocateStoreView(allocBtn.getAttribute('data-store')); return; }
+                // Export
+                const exportBtn = e.target.closest('.sv-export-btn');
+                if (exportBtn) { exportAllocations(); return; }
+                // Close detail
+                const closeBtn = e.target.closest('.sv-close-btn');
+                if (closeBtn) { appData.svSelectedItem=null; renderStoreViewContent(); return; }
+            });
+            // Ctrl/Cmd+Click on item card = add to selection without opening detail
+            container.addEventListener('click', function(e) {
+                if (!e.ctrlKey && !e.metaKey) return;
+                const card = e.target.closest('.sv-item-card');
+                if (card) { e.stopImmediatePropagation(); toggleStoreViewItem(card.getAttribute('data-key')); }
+            }, true);
+        }
+
+        function svSelectItem(itemKey) {
+            appData.svSelectedItem = (appData.svSelectedItem===itemKey) ? null : itemKey;
+            renderStoreViewContent();
+        }
+
+        function renderStoreViewItems() { renderStoreViewContent(); }
+
+        function toggleStoreViewItem(itemKey) {
+            if (appData.selectedItems.has(itemKey)) appData.selectedItems.delete(itemKey);
+            else appData.selectedItems.add(itemKey);
+            renderStoreViewContent();
+        }
+
+        function allocateStoreView(storeId) {
+            if (appData.selectedItems.size===0) { alert('Select items first'); return; }
+            const store = appData.stores[storeId];
+            let skipped = 0;
+            appData.selectedItems.forEach(itemKey => {
+                const [article,color] = itemKey.split('_');
+                const familia = getCWH(appData.stock[itemKey]||{})?.fldDescriFam||'UNKNOWN';
+                const itemSexo = (getCWH(appData.stock[itemKey]||{})?.fldidSexo||'').toUpperCase().trim();
+                const isKidsItem = ['NIÑO','NIÑA','NINO','NINA','BOY','GIRL'].includes(itemSexo);
+                if (isKidsItem && store.kids !== 'SI') { skipped++; return; }
+                // Duplicate prevention
+                if (isAllocated(itemKey, storeId)) { skipped++; return; }
+                appData.allocations.push({store:storeId,area:store.area,manager:store.manager,article,color:color.padStart(6,'0'),pack:getPackForArticle(article),family:familia});
+            });
+            const allocated = appData.selectedItems.size - skipped;
+            alert(`✓ Allocated ${allocated} item(s) to ${storeId}${skipped > 0 ? `\n⚠ Skipped ${skipped} (already allocated or kids rule)` : ''}`);
+            appData.selectedItems.clear();
+            appData.svSelectedItem = null;
+            renderStoreView();
+        }
+    </script>
+</body>
+</html>
